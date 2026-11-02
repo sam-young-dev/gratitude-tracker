@@ -79,6 +79,7 @@
 }
 
 @theme inline {
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
   --font-sans:
     'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
     sans-serif;
@@ -178,7 +179,8 @@
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    /* Drop movement but keep colour and opacity fades. */
+    transition-property: color, background-color, border-color, opacity !important;
     scroll-behavior: auto !important;
   }
 }

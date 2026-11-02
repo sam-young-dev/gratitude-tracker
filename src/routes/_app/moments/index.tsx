@@ -1,8 +1,16 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { XIcon } from 'lucide-react'
+import { useRef, useState } from 'react'
 import { EntryListItem } from '@/components/entry-list-item'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { PAGE_SIZE } from '@/lib/entry-schema'
 import { listTagsFn, searchEntriesFn } from '@/lib/journal.functions'
 import { usePendingDeleteIds } from '@/lib/pending-deletes'
@@ -43,8 +51,7 @@ export const Route = createFileRoute('/_app/moments/')({
   component: Moments,
 })
 
-const selectClass =
-  'h-11 min-w-0 rounded-lg border border-input bg-transparent px-2.5 text-base transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30'
+const ALL = 'all'
 
 function Moments() {
   const { entries, matching, total, years, tags } = Route.useLoaderData()
@@ -53,6 +60,18 @@ function Moments() {
   const hidden = usePendingDeleteIds()
   const visible = entries.filter((entry) => !hidden.has(entry.id))
   const [draft, setDraft] = useState(search.q ?? '')
+  const searchRef = useRef<HTMLInputElement>(null)
+  const tagItems = [
+    { value: ALL, label: 'All tags' },
+    ...tags.map((tag) => ({
+      value: tag.name,
+      label: `${tag.name} (${tag.count})`,
+    })),
+  ]
+  const yearItems = [
+    { value: ALL, label: 'All years' },
+    ...years.map((year) => ({ value: String(year), label: String(year) })),
+  ]
 
   const page = search.page ?? 1
   const pageCount = Math.max(1, Math.ceil(matching / PAGE_SIZE))
@@ -107,53 +126,83 @@ function Moments() {
           >
             <label className="flex min-w-48 flex-1 flex-col gap-1.5 text-sm font-medium">
               Search
-              <Input
-                type="search"
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                placeholder="Words, Scripture, how it turned out"
-                className="h-11"
-              />
+              <div className="relative">
+                <Input
+                  ref={searchRef}
+                  type="search"
+                  value={draft}
+                  onChange={(event) => {
+                    setDraft(event.target.value)
+                    if (!event.target.value && search.q)
+                      update({ q: undefined })
+                  }}
+                  placeholder="Words, Scripture, how it turned out"
+                  spellCheck={false}
+                  autoComplete="off"
+                  enterKeyHint="search"
+                  className="h-11 pr-10 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+                />
+                {draft ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Clear search"
+                    className="absolute top-1/2 right-0 -translate-y-1/2 text-muted-foreground"
+                    onClick={() => {
+                      setDraft('')
+                      if (search.q) update({ q: undefined })
+                      searchRef.current?.focus()
+                    }}
+                  >
+                    <XIcon className="size-4" />
+                  </Button>
+                ) : null}
+              </div>
             </label>
             <label className="flex flex-col gap-1.5 text-sm font-medium">
               Tag
-              <select
-                className={selectClass}
-                aria-label="Filter by tag"
-                value={search.tag ?? ''}
-                onChange={(event) =>
-                  update({ tag: event.target.value || undefined })
+              <Select
+                items={tagItems}
+                value={search.tag ?? ALL}
+                onValueChange={(value) =>
+                  update({ tag: value && value !== ALL ? value : undefined })
                 }
               >
-                <option value="">All tags</option>
-                {tags.map((tag) => (
-                  <option key={tag.id} value={tag.name}>
-                    {tag.name} ({tag.count})
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger aria-label="Filter by tag" className="min-w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {tagItems.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </label>
             <label className="flex flex-col gap-1.5 text-sm font-medium">
               Year
-              <select
-                className={selectClass}
-                aria-label="Filter by year"
-                value={search.year ?? ''}
-                onChange={(event) =>
+              <Select
+                items={yearItems}
+                value={search.year ? String(search.year) : ALL}
+                onValueChange={(value) =>
                   update({
-                    year: event.target.value
-                      ? Number(event.target.value)
-                      : undefined,
+                    year: value && value !== ALL ? Number(value) : undefined,
                   })
                 }
               >
-                <option value="">All years</option>
-                {years.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger aria-label="Filter by year" className="min-w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {yearItems.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </label>
             <Button type="submit" className="h-11 px-5">
               Search

@@ -2,6 +2,7 @@ import {
   Link,
   createRouter as createTanStackRouter,
 } from '@tanstack/react-router'
+import { Button } from '@/components/ui/button'
 import { routeTree } from './routeTree.gen'
 
 function NotFound() {
@@ -33,13 +34,9 @@ function ErrorFallback({ reset }: { reset: () => void }) {
         That didn&rsquo;t load. Your moments are safe. Try again, and if it
         keeps happening, come back in a little while.
       </p>
-      <button
-        type="button"
-        onClick={reset}
-        className="min-h-11 py-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
-      >
+      <Button type="button" variant="link" onClick={reset} className="px-0">
         Try again
-      </button>
+      </Button>
     </div>
   )
 }

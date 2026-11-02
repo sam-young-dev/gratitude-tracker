@@ -27,7 +27,7 @@ export function OnThisDay() {
   if (!rows) {
     return (
       <div
-        className="h-40 animate-pulse rounded-xl bg-muted/60"
+        className="h-40 motion-safe:animate-pulse rounded-xl bg-muted/60"
         aria-hidden="true"
       />
     )

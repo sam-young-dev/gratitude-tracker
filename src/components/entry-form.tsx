@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { todayLocal } from '@/lib/dates'
@@ -48,7 +49,7 @@ const isBlank = (v: Values) =>
   v.tags.length === 0
 
 const chipBase =
-  'inline-flex min-h-11 items-center gap-1.5 rounded-full border px-3 text-sm transition-[color,background-color,opacity,transform] duration-150 active:scale-[0.97]'
+  'inline-flex min-h-11 items-center gap-1.5 rounded-full border px-3 text-sm transition-[color,background-color,opacity,transform] duration-150 ease-out-strong active:scale-[0.97]'
 
 type Props = {
   /** Present when editing an existing moment. */
@@ -335,7 +336,7 @@ export function EntryForm({
         ) : null}
 
         <div className="flex gap-2">
-          <input
+          <Input
             aria-label="New tag name"
             value={tagDraft}
             maxLength={MAX_TAG_LENGTH}
@@ -348,7 +349,7 @@ export function EntryForm({
                 addTag(tagDraft)
               }
             }}
-            className="h-11 min-w-0 flex-1 rounded-lg border border-input bg-transparent px-3 text-base outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30"
+            className="h-11 flex-1"
           />
           <Button
             type="button"
@@ -375,22 +376,20 @@ export function EntryForm({
       </fieldset>
 
       <div className="flex flex-col gap-4">
-        <button
+        <Button
           type="button"
+          variant="link"
           onClick={() => setDetailsOpen((open) => !open)}
           aria-expanded={detailsOpen}
           aria-controls="entry-details"
-          className="flex min-h-11 w-fit items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline"
+          className="w-fit px-0"
         >
           <ChevronRight
-            className={cn(
-              'size-4 transition-transform duration-150',
-              detailsOpen && 'rotate-90',
-            )}
+            className={cn('size-4', detailsOpen && 'rotate-90')}
             aria-hidden="true"
           />
           {detailsOpen ? 'Hide details' : 'Add details'}
-        </button>
+        </Button>
         <div
           id="entry-details"
           hidden={!detailsOpen}
@@ -442,13 +441,9 @@ export function EntryForm({
           className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted px-4 py-3 text-sm"
         >
           <span>We restored your unsaved draft.</span>
-          <button
-            type="button"
-            onClick={discardDraft}
-            className="min-h-11 font-medium text-primary underline-offset-4 hover:underline"
-          >
+          <Button type="button" variant="link" onClick={discardDraft}>
             Start over
-          </button>
+          </Button>
         </div>
       ) : null}
 

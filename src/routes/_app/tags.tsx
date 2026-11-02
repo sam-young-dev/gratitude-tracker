@@ -12,6 +12,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Button, buttonVariants } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { MAX_TAG_LENGTH } from '@/lib/entry-schema'
 import { deleteTagFn, listTagsFn, renameTagFn } from '@/lib/journal.functions'
 import { cn } from '@/lib/utils'
@@ -109,10 +111,10 @@ function TagRow({ tag }: { tag: Tag }) {
     <li className="flex flex-col gap-3 p-4">
       {editing ? (
         <form onSubmit={rename} className="flex flex-col gap-3">
-          <label htmlFor={`tag-${tag.id}`} className="text-sm font-medium">
+          <Label htmlFor={`tag-${tag.id}`}>
             New name for &ldquo;{tag.name}&rdquo;
-          </label>
-          <input
+          </Label>
+          <Input
             id={`tag-${tag.id}`}
             value={name}
             maxLength={MAX_TAG_LENGTH}
@@ -120,7 +122,7 @@ function TagRow({ tag }: { tag: Tag }) {
             onChange={(e) => setName(e.target.value)}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? `tag-${tag.id}-error` : undefined}
-            className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive md:text-sm dark:bg-input/30"
+            className="h-11"
           />
           {error ? (
             <p

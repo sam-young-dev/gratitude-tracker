@@ -11,6 +11,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { authClient } from '@/lib/auth-client'
 import { exportFilename, toJson, toMarkdown } from '@/lib/export'
 import { exportEntriesFn } from '@/lib/journal.functions'
@@ -242,10 +244,8 @@ function Settings() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="flex flex-col gap-2">
-              <label htmlFor="delete-password" className="text-sm font-medium">
-                Your password
-              </label>
-              <input
+              <Label htmlFor="delete-password">Your password</Label>
+              <Input
                 id="delete-password"
                 type="password"
                 autoComplete="current-password"
@@ -253,7 +253,7 @@ function Settings() {
                 onChange={(e) => setPassword(e.target.value)}
                 aria-invalid={deleteError ? true : undefined}
                 aria-describedby={deleteError ? 'delete-error' : undefined}
-                className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive md:text-sm dark:bg-input/30"
+                className="h-11"
               />
               {deleteError ? (
                 <p

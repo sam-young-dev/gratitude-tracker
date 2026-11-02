@@ -154,7 +154,7 @@ Check items off as they land.
   - [x] Pre-production pass, code side: favicon and theme-color, default error page, `transition-all` removed from shadcn button and badge, typecheck, lint and build clean.
   - [x] Ship check (prep for prod): `.env.dev-backup` untracked and `.env.*` gitignored. Rotating the dev credentials is skipped by choice.
   - [ ] **Pre-production pass, needs a device or a person:** screen reader and keyboard walk-through, real phone (iOS Safari: input zoom, safe areas, bottom tab bar), dark mode look, the sign-in, sign-up and reset forms in a real browser (see step 2 notes).
-  - [ ] **Netlify deploy (yours to do, see section 6 and "Build notes, step 7").**
+  - [x] **Netlify deploy (yours to do, see section 6 and "Build notes, step 7").**
 
 ---
 
