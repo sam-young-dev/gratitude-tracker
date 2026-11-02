@@ -3,6 +3,8 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import appCss from '../styles.css?url'
+import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url'
+import newsreaderLatin from '@fontsource-variable/newsreader/files/newsreader-latin-opsz-normal.woff2?url'
 import { HydrationMarker } from '@/components/hydration-marker'
 import { Toaster } from '@/components/ui/sonner'
 
@@ -25,7 +27,7 @@ export const Route = createRootRoute({
       },
       {
         name: 'viewport',
-        content: 'width=device-width, initial-scale=1, viewport-fit=cover',
+        content: 'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content',
       },
       {
         title: 'Gratitude Tracker',
@@ -51,6 +53,21 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+      // The latin subsets cover the app's copy; preloading them avoids a late swap.
+      {
+        rel: 'preload',
+        href: interLatin,
+        as: 'font',
+        type: 'font/woff2',
+        crossOrigin: 'anonymous',
+      },
+      {
+        rel: 'preload',
+        href: newsreaderLatin,
+        as: 'font',
+        type: 'font/woff2',
+        crossOrigin: 'anonymous',
+      },
       {
         rel: 'stylesheet',
         href: appCss,

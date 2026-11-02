@@ -5,15 +5,24 @@ import { Chart } from '@tanstack/charts/react'
 import { scaleBand } from '@tanstack/charts/scales/band'
 import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { tooltip } from '@tanstack/charts/tooltip'
-import { HeatMap } from '@/components/heat-map'
+import { HeatMapDays } from '@/components/heat-map-days'
 import { buttonVariants } from '@/components/ui/button'
+import { loadDayEntries, useSetDay, validateDaySearch } from '@/lib/day-search'
 import { getInsightsFn } from '@/lib/journal.functions'
 import { monthShort } from '@/lib/heat'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_app/insights')({
   head: () => ({ meta: [{ title: 'Insights · Gratitude Tracker' }] }),
-  loader: () => getInsightsFn(),
+  validateSearch: validateDaySearch,
+  loaderDeps: ({ search }) => ({ day: search.day }),
+  loader: async ({ deps }) => {
+    const [insights, dayEntries] = await Promise.all([
+      getInsightsFn(),
+      loadDayEntries(deps.day),
+    ])
+    return { ...insights, dayEntries }
+  },
   component: Insights,
 })
 
@@ -29,7 +38,10 @@ function wholeTicks(max: number) {
 }
 
 function Insights() {
-  const { total, monthly, byTag, counts, end, months } = Route.useLoaderData()
+  const { total, monthly, byTag, counts, end, months, dayEntries } =
+    Route.useLoaderData()
+  const { day } = Route.useSearch()
+  const setDay = useSetDay()
 
   const monthRows = useMemo(() => {
     const byMonth = new Map(monthly.map((row) => [row.month, row.count]))
@@ -153,21 +165,25 @@ function Insights() {
           {lastYear} {lastYear === 1 ? 'moment' : 'moments'} in the last 53
           weeks. Each square is a day; darker means more moments.
         </p>
-        <div
-          className="overflow-x-auto"
-          tabIndex={0}
-          role="region"
-          aria-label="Heat map, scrollable"
-        >
-          <div className="min-w-[640px]">
-            <HeatMap
-              counts={counts}
-              end={end}
-              weeks={53}
-              ariaLabel="Heat map of moments per day over the past year"
-            />
-          </div>
-        </div>
+        <HeatMapDays
+          mapWrapper={(map) => (
+            <div
+              className="overflow-x-auto"
+              tabIndex={0}
+              role="region"
+              aria-label="Heat map, scrollable"
+            >
+              <div className="min-w-[800px]">{map}</div>
+            </div>
+          )}
+          counts={counts}
+          end={end}
+          weeks={53}
+          ariaLabel="Heat map of moments per day over the past year"
+          day={day}
+          entries={dayEntries}
+          onDayChange={setDay}
+        />
       </section>
 
       <section className="flex flex-col gap-3" aria-labelledby="month-heading">

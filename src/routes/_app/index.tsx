@@ -1,28 +1,34 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { EntryForm } from '@/components/entry-form'
 import { EntryListItem } from '@/components/entry-list-item'
-import { HeatMap } from '@/components/heat-map'
+import { HeatMapDays } from '@/components/heat-map-days'
 import { OnThisDay } from '@/components/on-this-day'
 import { buttonVariants } from '@/components/ui/button'
+import { loadDayEntries, useSetDay, validateDaySearch } from '@/lib/day-search'
 import { getHeatFn, listEntriesFn, listTagsFn } from '@/lib/journal.functions'
 import { usePendingDeleteIds, wasRestored } from '@/lib/pending-deletes'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_app/')({
   head: () => ({ meta: [{ title: 'Home · Gratitude Tracker' }] }),
-  loader: async () => {
-    const [recent, tags, heat] = await Promise.all([
+  validateSearch: validateDaySearch,
+  loaderDeps: ({ search }) => ({ day: search.day }),
+  loader: async ({ deps }) => {
+    const [recent, tags, heat, dayEntries] = await Promise.all([
       listEntriesFn({ data: { limit: 5 } }),
       listTagsFn(),
       getHeatFn({ data: { weeks: 14 } }),
+      loadDayEntries(deps.day),
     ])
-    return { ...recent, tags, heat }
+    return { ...recent, tags, heat, dayEntries }
   },
   component: Home,
 })
 
 function Home() {
-  const { entries, total, tags, heat } = Route.useLoaderData()
+  const { entries, total, tags, heat, dayEntries } = Route.useLoaderData()
+  const { day } = Route.useSearch()
+  const setDay = useSetDay()
   const { user } = Route.useRouteContext()
   const hidden = usePendingDeleteIds()
   const firstName = user.name.split(' ')[0]
@@ -81,15 +87,19 @@ function Home() {
         >
           The last 14 weeks
         </h2>
-        <div className="w-full max-w-[300px]">
-          <HeatMap
-            counts={heat.counts}
-            end={heat.end}
-            weeks={heat.weeks}
-            compact
-            ariaLabel="Heat map of moments per day over the last 14 weeks"
-          />
-        </div>
+        <HeatMapDays
+          mapWrapper={(map) => (
+            <div className="w-full max-w-[300px]">{map}</div>
+          )}
+          counts={heat.counts}
+          end={heat.end}
+          weeks={heat.weeks}
+          compact
+          ariaLabel="Heat map of moments per day over the last 14 weeks"
+          day={day}
+          entries={dayEntries}
+          onDayChange={setDay}
+        />
         <Link
           to="/insights"
           className="min-h-11 w-fit py-3 text-sm font-medium text-primary underline-offset-4 hover:underline"

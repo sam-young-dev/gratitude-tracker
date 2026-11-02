@@ -118,6 +118,12 @@ export const getHeatFn = createServerFn({ method: 'GET' })
     return { counts, end, weeks: data.weeks }
   })
 
+export const listEntriesByDayFn = createServerFn({ method: 'GET' })
+  .validator((data: unknown) => z.object({ date: isoDate }).parse(data))
+  .handler(async ({ data }) =>
+    journal.listEntriesByDay(await requireUserId(), data.date),
+  )
+
 export const getInsightsFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     const userId = await requireUserId()

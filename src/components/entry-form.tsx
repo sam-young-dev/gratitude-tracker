@@ -55,6 +55,8 @@ type Props = {
   /** Present when editing an existing moment. */
   entryId?: string
   initial?: Values
+  /** Date to start a new moment on instead of today; ignored if it's in the future. */
+  defaultDate?: string
   /** Tag names this person has already used, offered as one-tap chips. */
   existingTags: Array<string>
   /** New moments autosave a draft under this key (per user). */
@@ -68,6 +70,7 @@ type Props = {
 export function EntryForm({
   entryId,
   initial,
+  defaultDate,
   existingTags,
   draftKey,
   submitLabel,
@@ -93,6 +96,9 @@ export function EntryForm({
   useEffect(() => {
     const now = todayLocal()
     setToday(now)
+    // A day picked from the heat map; a future one is ignored.
+    const pickedDate =
+      defaultDate && defaultDate <= now ? defaultDate : undefined
     let draft: Values | null = null
     if (draftKey && !initial) {
       try {
@@ -103,14 +109,18 @@ export function EntryForm({
       }
     }
     if (draft && !isBlank(draft)) {
-      setValues({ ...draft, entryDate: draft.entryDate || now })
+      // A picked day wins over the draft's own date.
+      setValues({
+        ...draft,
+        entryDate: pickedDate ?? (draft.entryDate || now),
+      })
       setDetailsOpen(Boolean(draft.scripture || draft.outcome))
       setRestored(true)
     } else if (!initial) {
-      setValues((v) => ({ ...v, entryDate: v.entryDate || now }))
+      setValues((v) => ({ ...v, entryDate: v.entryDate || pickedDate || now }))
     }
     hydrated.current = true
-  }, [draftKey, initial])
+  }, [draftKey, initial, defaultDate])
 
   // Autosave a new moment's draft shortly after the last keystroke.
   useEffect(() => {

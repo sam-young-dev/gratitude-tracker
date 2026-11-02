@@ -24,6 +24,11 @@ export function isRealDate(iso: string) {
   )
 }
 
+/** A `?day=` or `?date=` search param: the day if it's a real calendar day, else undefined. */
+export function parseDayParam(value: unknown) {
+  return typeof value === 'string' && isRealDate(value) ? value : undefined
+}
+
 function parts(iso: string) {
   const [y, m, d] = iso.split('-').map(Number)
   return new Date(Date.UTC(y, m - 1, d))
