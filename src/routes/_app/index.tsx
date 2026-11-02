@@ -1,31 +1,24 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { EntryForm } from '@/components/entry-form'
 import { EntryListItem } from '@/components/entry-list-item'
 import { HeatMapDays } from '@/components/heat-map-days'
 import { OnThisDay } from '@/components/on-this-day'
 import { buttonVariants } from '@/components/ui/button'
-import { parseDayParam } from '@/lib/dates'
-import {
-  getHeatFn,
-  listEntriesByDayFn,
-  listEntriesFn,
-  listTagsFn,
-} from '@/lib/journal.functions'
+import { loadDayEntries, useSetDay, validateDaySearch } from '@/lib/day-search'
+import { getHeatFn, listEntriesFn, listTagsFn } from '@/lib/journal.functions'
 import { usePendingDeleteIds, wasRestored } from '@/lib/pending-deletes'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_app/')({
   head: () => ({ meta: [{ title: 'Home · Gratitude Tracker' }] }),
-  validateSearch: (search: Record<string, unknown>): { day?: string } => ({
-    day: parseDayParam(search.day),
-  }),
+  validateSearch: validateDaySearch,
   loaderDeps: ({ search }) => ({ day: search.day }),
   loader: async ({ deps }) => {
     const [recent, tags, heat, dayEntries] = await Promise.all([
       listEntriesFn({ data: { limit: 5 } }),
       listTagsFn(),
       getHeatFn({ data: { weeks: 14 } }),
-      deps.day ? listEntriesByDayFn({ data: { date: deps.day } }) : [],
+      loadDayEntries(deps.day),
     ])
     return { ...recent, tags, heat, dayEntries }
   },
@@ -35,7 +28,7 @@ export const Route = createFileRoute('/_app/')({
 function Home() {
   const { entries, total, tags, heat, dayEntries } = Route.useLoaderData()
   const { day } = Route.useSearch()
-  const navigate = useNavigate({ from: Route.fullPath })
+  const setDay = useSetDay()
   const { user } = Route.useRouteContext()
   const hidden = usePendingDeleteIds()
   const firstName = user.name.split(' ')[0]
@@ -105,12 +98,7 @@ function Home() {
           ariaLabel="Heat map of moments per day over the last 14 weeks"
           day={day}
           entries={dayEntries}
-          onDayChange={(next) =>
-            navigate({
-              search: (prev) => ({ ...prev, day: next }),
-              resetScroll: false,
-            })
-          }
+          onDayChange={setDay}
         />
         <Link
           to="/insights"

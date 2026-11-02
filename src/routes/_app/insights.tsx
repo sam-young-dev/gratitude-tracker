@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { barX, barY, defineChart } from '@tanstack/charts'
 import { Chart } from '@tanstack/charts/react'
 import { scaleBand } from '@tanstack/charts/scales/band'
@@ -7,21 +7,19 @@ import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { tooltip } from '@tanstack/charts/tooltip'
 import { HeatMapDays } from '@/components/heat-map-days'
 import { buttonVariants } from '@/components/ui/button'
-import { parseDayParam } from '@/lib/dates'
-import { getInsightsFn, listEntriesByDayFn } from '@/lib/journal.functions'
+import { loadDayEntries, useSetDay, validateDaySearch } from '@/lib/day-search'
+import { getInsightsFn } from '@/lib/journal.functions'
 import { monthShort } from '@/lib/heat'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_app/insights')({
   head: () => ({ meta: [{ title: 'Insights · Gratitude Tracker' }] }),
-  validateSearch: (search: Record<string, unknown>): { day?: string } => ({
-    day: parseDayParam(search.day),
-  }),
+  validateSearch: validateDaySearch,
   loaderDeps: ({ search }) => ({ day: search.day }),
   loader: async ({ deps }) => {
     const [insights, dayEntries] = await Promise.all([
       getInsightsFn(),
-      deps.day ? listEntriesByDayFn({ data: { date: deps.day } }) : [],
+      loadDayEntries(deps.day),
     ])
     return { ...insights, dayEntries }
   },
@@ -43,7 +41,7 @@ function Insights() {
   const { total, monthly, byTag, counts, end, months, dayEntries } =
     Route.useLoaderData()
   const { day } = Route.useSearch()
-  const navigate = useNavigate({ from: Route.fullPath })
+  const setDay = useSetDay()
 
   const monthRows = useMemo(() => {
     const byMonth = new Map(monthly.map((row) => [row.month, row.count]))
@@ -184,12 +182,7 @@ function Insights() {
           ariaLabel="Heat map of moments per day over the past year"
           day={day}
           entries={dayEntries}
-          onDayChange={(next) =>
-            navigate({
-              search: (prev) => ({ ...prev, day: next }),
-              resetScroll: false,
-            })
-          }
+          onDayChange={setDay}
         />
       </section>
 
