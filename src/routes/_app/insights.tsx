@@ -12,7 +12,7 @@ import { monthShort } from '@/lib/heat'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_app/insights')({
-  head: () => ({ meta: [{ title: 'Insights · Moment Tracker' }] }),
+  head: () => ({ meta: [{ title: 'Insights · Gratitude Tracker' }] }),
   loader: () => getInsightsFn(),
   component: Insights,
 })

@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 type Search = { q?: string; tag?: string; year?: number; page?: number }
 
 export const Route = createFileRoute('/_app/moments/')({
-  head: () => ({ meta: [{ title: 'Moments · Moment Tracker' }] }),
+  head: () => ({ meta: [{ title: 'Moments · Gratitude Tracker' }] }),
   validateSearch: (search: Record<string, unknown>): Search => {
     const year = Number(search.year)
     const page = Number(search.page)

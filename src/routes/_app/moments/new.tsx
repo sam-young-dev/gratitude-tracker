@@ -3,7 +3,7 @@ import { EntryForm } from '@/components/entry-form'
 import { listTagsFn } from '@/lib/journal.functions'
 
 export const Route = createFileRoute('/_app/moments/new')({
-  head: () => ({ meta: [{ title: 'Add a moment · Moment Tracker' }] }),
+  head: () => ({ meta: [{ title: 'Add a moment · Gratitude Tracker' }] }),
   loader: () => listTagsFn(),
   component: NewMoment,
 })

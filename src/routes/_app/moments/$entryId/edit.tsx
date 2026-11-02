@@ -3,7 +3,7 @@ import { EntryForm } from '@/components/entry-form'
 import { getEntryFn, listTagsFn } from '@/lib/journal.functions'
 
 export const Route = createFileRoute('/_app/moments/$entryId/edit')({
-  head: () => ({ meta: [{ title: 'Edit moment · Moment Tracker' }] }),
+  head: () => ({ meta: [{ title: 'Edit moment · Gratitude Tracker' }] }),
   loader: async ({ params }) => {
     const [entry, tags] = await Promise.all([
       getEntryFn({ data: { id: params.entryId } }),

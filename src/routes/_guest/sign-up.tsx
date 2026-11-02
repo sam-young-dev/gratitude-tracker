@@ -12,7 +12,7 @@ import {
 } from '@/lib/auth-errors'
 
 export const Route = createFileRoute('/_guest/sign-up')({
-  head: () => ({ meta: [{ title: 'Create your account · Moment Tracker' }] }),
+  head: () => ({ meta: [{ title: 'Create your account · Gratitude Tracker' }] }),
   component: SignUp,
 })
 

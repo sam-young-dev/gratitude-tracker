@@ -3,7 +3,7 @@ import type { EntrySummary } from '@/server/journal'
 export type ExportedEntry = Omit<EntrySummary, 'id'>
 
 export function exportFilename(ext: 'json' | 'md', today: string) {
-  return `moment-tracker-${today}.${ext}`
+  return `gratitude-tracker-${today}.${ext}`
 }
 
 export function toJson(entries: Array<ExportedEntry>, exportedAt: string) {
@@ -13,7 +13,7 @@ export function toJson(entries: Array<ExportedEntry>, exportedAt: string) {
 /** One readable file, newest moment first, like the Moments list. */
 export function toMarkdown(entries: Array<ExportedEntry>, exportedAt: string) {
   const parts = [
-    '# Moment Tracker',
+    '# Gratitude Tracker',
     `Exported ${exportedAt.slice(0, 10)} · ${entries.length} ${entries.length === 1 ? 'moment' : 'moments'}`,
   ]
   for (const entry of [...entries].reverse()) {

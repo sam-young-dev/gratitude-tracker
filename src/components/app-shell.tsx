@@ -72,7 +72,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <aside className="hidden border-r md:sticky md:top-0 md:flex md:h-dvh md:flex-col md:gap-8 md:px-4 md:py-6">
         <p className="px-3 font-serif text-xl font-semibold tracking-tight">
-          Moment Tracker
+          Gratitude Tracker
         </p>
         <nav aria-label="Main" className="flex flex-col gap-1">
           {primaryNav.map((item) => (

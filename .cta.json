@@ -1,5 +1,5 @@
 {
-  "projectName": "moment-tracker",
+  "projectName": "gratitude-tracker",
   "mode": "file-router",
   "bundler": "vite",
   "typescript": true,

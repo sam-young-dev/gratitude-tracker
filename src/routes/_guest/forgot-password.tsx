@@ -7,7 +7,7 @@ import { authClient } from '@/lib/auth-client'
 import { EMAIL_PROBLEM, authErrorMessage, isEmail } from '@/lib/auth-errors'
 
 export const Route = createFileRoute('/_guest/forgot-password')({
-  head: () => ({ meta: [{ title: 'Reset your password · Moment Tracker' }] }),
+  head: () => ({ meta: [{ title: 'Reset your password · Gratitude Tracker' }] }),
   component: ForgotPassword,
 })
 

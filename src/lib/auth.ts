@@ -16,7 +16,7 @@ export const auth = betterAuth({
       // Not awaited, so response time doesn't reveal whether an account exists.
       void sendEmail({
         to: user.email,
-        subject: 'Reset your Moment Tracker password',
+        subject: 'Reset your Gratitude Tracker password',
         text: `Open this link to choose a new password:\n\n${url}\n\nIf you didn't ask for this, you can ignore this email.`,
       })
     },

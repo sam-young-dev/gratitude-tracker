@@ -1,4 +1,4 @@
-# Moment Tracker: Plan
+# Gratitude Tracker: Plan
 
 Working title (easy to change). A private journal for recording moments you saw God working in your life, with a heat map and a few other views to look back over time.
 
@@ -214,10 +214,10 @@ Things learned while building that are not obvious from the code.
 - Tested: a fourth Playwright flow seeds moments (today, yesterday, a week ago, 40 days ago, one a year ago, tagged), checks the heat map paints, the table fallback, Home, and On this day, with no console errors.
 
 **Step 6 (data ownership)**
-- Export: `exportEntriesFn` returns every moment (oldest first, no ids) and the browser builds the file with `src/lib/export.ts` (`toJson`, `toMarkdown`) and downloads it as a Blob. Markdown lists newest first. Filenames are `moment-tracker-YYYY-MM-DD.<ext>`.
+- Export: `exportEntriesFn` returns every moment (oldest first, no ids) and the browser builds the file with `src/lib/export.ts` (`toJson`, `toMarkdown`) and downloads it as a Blob. Markdown lists newest first. Filenames are `gratitude-tracker-YYYY-MM-DD.<ext>`.
 - Delete account: Better Auth `user.deleteUser` is enabled in `src/lib/auth.ts`; Settings calls `authClient.deleteUser({ password })` from a confirm dialog. Entries, tags and sessions go via the `onDelete: 'cascade'` foreign keys. Google-only accounts (once Google sign-in exists) have no password, so the dialog will need a different confirmation for them.
 - Theme: Light, Dark, or Match device (removes `localStorage.theme`).
-- App renamed from "Gratitude Graph" to "Moment Tracker" (UI copy, page titles, reset email, `package.json`). The folder name and the `gg:draft:` localStorage prefix (kept so existing drafts survive) are unchanged.
+- App renamed from "Gratitude Graph" to "Moment Tracker" and then to "Gratitude Tracker" (UI copy, page titles, reset email, export filenames, `package.json`). The folder name and the `gg:draft:` localStorage prefix (kept so existing drafts survive) are unchanged.
 
 **Step 7 (quality)**
 - Unit tests: `npm test` runs Vitest through `vitest.config.ts`, a separate config so the TanStack Start and Netlify plugins don't load. Tests sit beside the code as `src/**/*.test.ts`. The data layer and RLS are tested through the Playwright flows and the earlier two-user script, not Vitest.

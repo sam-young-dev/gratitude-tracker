@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils'
 import type { EntrySummary } from '@/server/journal'
 
 export const Route = createFileRoute('/_app/moments/$entryId/')({
-  head: () => ({ meta: [{ title: 'Moment · Moment Tracker' }] }),
+  head: () => ({ meta: [{ title: 'Moment · Gratitude Tracker' }] }),
   loader: async ({ params }) => {
     const entry = await getEntryFn({ data: { id: params.entryId } })
     if (!entry) throw notFound()

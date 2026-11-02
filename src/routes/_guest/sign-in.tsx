@@ -7,7 +7,7 @@ import { authClient } from '@/lib/auth-client'
 import { EMAIL_PROBLEM, authErrorMessage, isEmail } from '@/lib/auth-errors'
 
 export const Route = createFileRoute('/_guest/sign-in')({
-  head: () => ({ meta: [{ title: 'Sign in · Moment Tracker' }] }),
+  head: () => ({ meta: [{ title: 'Sign in · Gratitude Tracker' }] }),
   component: SignIn,
 })
 

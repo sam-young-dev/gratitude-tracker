@@ -16,7 +16,7 @@ import { MAX_TAG_LENGTH } from '@/lib/entry-schema'
 import { deleteTagFn, listTagsFn, renameTagFn } from '@/lib/journal.functions'
 
 export const Route = createFileRoute('/_app/tags')({
-  head: () => ({ meta: [{ title: 'Tags · Moment Tracker' }] }),
+  head: () => ({ meta: [{ title: 'Tags · Gratitude Tracker' }] }),
   loader: () => listTagsFn(),
   component: Tags,
 })

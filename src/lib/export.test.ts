@@ -22,10 +22,10 @@ const newest: ExportedEntry = {
 describe('exportFilename', () => {
   it('names files by day and extension', () => {
     expect(exportFilename('json', '2026-11-02')).toBe(
-      'moment-tracker-2026-11-02.json',
+      'gratitude-tracker-2026-11-02.json',
     )
     expect(exportFilename('md', '2026-11-02')).toBe(
-      'moment-tracker-2026-11-02.md',
+      'gratitude-tracker-2026-11-02.md',
     )
   })
 })

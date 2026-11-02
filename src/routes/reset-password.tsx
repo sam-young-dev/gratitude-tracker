@@ -8,7 +8,7 @@ import { PASSWORD_PROBLEM, authErrorMessage } from '@/lib/auth-errors'
 
 export const Route = createFileRoute('/reset-password')({
   head: () => ({
-    meta: [{ title: 'Choose a new password · Moment Tracker' }],
+    meta: [{ title: 'Choose a new password · Gratitude Tracker' }],
   }),
   validateSearch: (search: Record<string, unknown>) => ({
     token: typeof search.token === 'string' ? search.token : undefined,
