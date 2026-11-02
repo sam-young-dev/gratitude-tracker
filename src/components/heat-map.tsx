@@ -38,38 +38,48 @@ export function HeatMap({
     [counts, end, weeks],
   )
 
+  // One mark per level so each cell takes its colour from the --heat-*
+  // tokens, which follow light and dark mode. Kept apart from the selection so
+  // picking a day doesn't re-filter every cell.
+  const levelMarks = useMemo(
+    () =>
+      LEVELS.map((level) =>
+        cell(
+          cells.filter((c) => c.level === level),
+          {
+            x: 'week',
+            y: 'weekday',
+            key: (c: HeatCell) => c.date,
+            fill: `var(--heat-${level})`,
+            inset: 1,
+            radius: 2,
+          },
+        ),
+      ),
+    [cells],
+  )
+
   const definition = useMemo(
     () =>
       defineChart({
-        // One mark per level so each cell takes its colour from the --heat-*
-        // tokens, which follow light and dark mode. The last mark rings the
-        // selected day and leaves its fill alone.
         marks: [
-          ...LEVELS.map((level) =>
+          ...levelMarks,
+          // Ring the selected day and leave its fill alone. The background
+          // halo keeps the ring readable over the lightest dark-mode cell.
+          ...(['--background', '--foreground'] as const).map((token, i) =>
             cell(
-              cells.filter((c) => c.level === level),
+              cells.filter((c) => c.date === selectedDay),
               {
                 x: 'week',
                 y: 'weekday',
-                key: (c: HeatCell) => c.date,
-                fill: `var(--heat-${level})`,
+                key: (c: HeatCell) => `selected-${i}-${c.date}`,
+                fill: 'transparent',
+                stroke: `var(${token})`,
+                strokeWidth: i === 0 ? 4 : 2,
                 inset: 1,
                 radius: 2,
               },
             ),
-          ),
-          cell(
-            cells.filter((c) => c.date === selectedDay),
-            {
-              x: 'week',
-              y: 'weekday',
-              key: (c: HeatCell) => `selected-${c.date}`,
-              fill: 'transparent',
-              stroke: 'var(--foreground)',
-              strokeWidth: 2,
-              inset: 1,
-              radius: 2,
-            },
           ),
         ],
         scales: {
@@ -105,7 +115,7 @@ export function HeatMap({
           },
         },
       }),
-    [cells, weekKeys, compact, selectedDay],
+    [levelMarks, cells, weekKeys, compact, selectedDay],
   )
 
   // Seven rows plus the month labels; cells stay roughly square.
@@ -131,6 +141,20 @@ export function HeatMap({
           if (point) onSelectDay?.(point.datum.date, 'chart')
         }}
       />
+      <div
+        aria-hidden="true"
+        className="flex items-center justify-end gap-1 py-1 text-xs text-muted-foreground"
+      >
+        <span>0</span>
+        {LEVELS.map((level) => (
+          <span
+            key={level}
+            className="size-3 rounded-[2px]"
+            style={{ background: `var(--heat-${level})` }}
+          />
+        ))}
+        <span>4+</span>
+      </div>
       <details className="text-sm">
         <summary className="min-h-11 cursor-pointer py-3 text-muted-foreground">
           Show as a list
@@ -153,8 +177,15 @@ export function HeatMap({
                       type="button"
                       aria-pressed={row.date === selectedDay}
                       onClick={() => onSelectDay?.(row.date, 'list')}
-                      className="min-h-11 text-left underline-offset-4 hover:underline aria-pressed:font-medium"
+                      className="group min-h-11 text-left underline-offset-4 hover:underline"
                     >
+                      {/* Reserved width, so selecting a day never reflows the text. */}
+                      <span
+                        aria-hidden="true"
+                        className="inline-block w-4 opacity-0 group-aria-pressed:opacity-100"
+                      >
+                        ✓
+                      </span>
                       {formatEntryDate(row.date)}
                     </button>
                   </td>

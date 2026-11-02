@@ -173,7 +173,7 @@ function Insights() {
               role="region"
               aria-label="Heat map, scrollable"
             >
-              <div className="min-w-[640px]">{map}</div>
+              <div className="min-w-[800px]">{map}</div>
             </div>
           )}
           counts={counts}
