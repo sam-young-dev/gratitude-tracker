@@ -3,6 +3,7 @@ import {
   formatEntryDate,
   isRealDate,
   latestAcceptedDate,
+  parseDayParam,
   toIsoDate,
   todayLocal,
 } from '@/lib/dates'
@@ -21,6 +22,19 @@ describe('isRealDate', () => {
     expect(isRealDate('2026-1-2')).toBe(false)
     expect(isRealDate('')).toBe(false)
     expect(isRealDate('2026-11-02T00:00:00Z')).toBe(false)
+  })
+})
+
+describe('parseDayParam', () => {
+  it('keeps a real calendar day', () => {
+    expect(parseDayParam('2026-10-14')).toBe('2026-10-14')
+  })
+  it('drops anything that is not a real calendar day', () => {
+    expect(parseDayParam('2026-02-30')).toBeUndefined()
+    expect(parseDayParam('yesterday')).toBeUndefined()
+    expect(parseDayParam('')).toBeUndefined()
+    expect(parseDayParam(20261014)).toBeUndefined()
+    expect(parseDayParam(undefined)).toBeUndefined()
   })
 })
 

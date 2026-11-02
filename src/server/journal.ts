@@ -81,6 +81,18 @@ export function listEntries(userId: string, limit = 50) {
   })
 }
 
+/** Every moment written for one calendar day, newest first. */
+export function listEntriesByDay(userId: string, date: string) {
+  return withUser(userId, async (tx) => {
+    const rows = await tx
+      .select(entryColumns)
+      .from(entries)
+      .where(and(eq(entries.userId, userId), eq(entries.entryDate, date)))
+      .orderBy(desc(entries.createdAt))
+    return attachTags(tx, userId, rows)
+  })
+}
+
 /** Every moment, oldest first, for export. */
 export function exportEntries(userId: string) {
   return withUser(userId, async (tx) => {

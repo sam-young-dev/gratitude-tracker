@@ -18,9 +18,21 @@ type Props = {
   /** Compact: shorter, no weekday labels. */
   compact?: boolean
   ariaLabel: string
+  /** The day whose moments are showing, as "YYYY-MM-DD". */
+  selectedDay?: string
+  /** `source` says whether the chart or the list asked, so the caller can manage focus. */
+  onSelectDay?: (day: string, source: 'chart' | 'list') => void
 }
 
-export function HeatMap({ counts, end, weeks, compact, ariaLabel }: Props) {
+export function HeatMap({
+  counts,
+  end,
+  weeks,
+  compact,
+  ariaLabel,
+  selectedDay,
+  onSelectDay,
+}: Props) {
   const { cells, weekKeys } = useMemo(
     () => buildHeat(counts, end, weeks),
     [counts, end, weeks],
@@ -30,20 +42,36 @@ export function HeatMap({ counts, end, weeks, compact, ariaLabel }: Props) {
     () =>
       defineChart({
         // One mark per level so each cell takes its colour from the --heat-*
-        // tokens, which follow light and dark mode.
-        marks: LEVELS.map((level) =>
+        // tokens, which follow light and dark mode. The last mark rings the
+        // selected day and leaves its fill alone.
+        marks: [
+          ...LEVELS.map((level) =>
+            cell(
+              cells.filter((c) => c.level === level),
+              {
+                x: 'week',
+                y: 'weekday',
+                key: (c: HeatCell) => c.date,
+                fill: `var(--heat-${level})`,
+                inset: 1,
+                radius: 2,
+              },
+            ),
+          ),
           cell(
-            cells.filter((c) => c.level === level),
+            cells.filter((c) => c.date === selectedDay),
             {
               x: 'week',
               y: 'weekday',
-              key: (c: HeatCell) => c.date,
-              fill: `var(--heat-${level})`,
+              key: (c: HeatCell) => `selected-${c.date}`,
+              fill: 'transparent',
+              stroke: 'var(--foreground)',
+              strokeWidth: 2,
               inset: 1,
               radius: 2,
             },
           ),
-        ),
+        ],
         scales: {
           x: {
             scale: () => scaleBand<string>().domain(weekKeys).padding(0.08),
@@ -77,7 +105,7 @@ export function HeatMap({ counts, end, weeks, compact, ariaLabel }: Props) {
           },
         },
       }),
-    [cells, weekKeys, compact],
+    [cells, weekKeys, compact, selectedDay],
   )
 
   // Seven rows plus the month labels; cells stay roughly square.
@@ -99,6 +127,9 @@ export function HeatMap({ counts, end, weeks, compact, ariaLabel }: Props) {
         height={height}
         initialWidth={compact ? 300 : 800}
         ariaLabel={ariaLabel}
+        onSelect={(point) => {
+          if (point) onSelectDay?.(point.datum.date, 'chart')
+        }}
       />
       <details className="text-sm">
         <summary className="min-h-11 cursor-pointer py-3 text-muted-foreground">
@@ -117,7 +148,16 @@ export function HeatMap({ counts, end, weeks, compact, ariaLabel }: Props) {
             <tbody>
               {days.map((row) => (
                 <tr key={row.date}>
-                  <td className="py-1">{formatEntryDate(row.date)}</td>
+                  <td>
+                    <button
+                      type="button"
+                      aria-pressed={row.date === selectedDay}
+                      onClick={() => onSelectDay?.(row.date, 'list')}
+                      className="min-h-11 text-left underline-offset-4 hover:underline aria-pressed:font-medium"
+                    >
+                      {formatEntryDate(row.date)}
+                    </button>
+                  </td>
                   <td className="py-1">{row.count}</td>
                 </tr>
               ))}
