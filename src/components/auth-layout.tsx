@@ -26,7 +26,9 @@ export function AuthLayout({
         {children}
       </div>
       {footer ? (
-        <p className="text-center text-sm text-muted-foreground">{footer}</p>
+        <p className="text-center text-sm text-muted-foreground [&_a]:inline-block [&_a]:min-h-11 [&_a]:py-3">
+          {footer}
+        </p>
       ) : null}
     </main>
   )

@@ -48,7 +48,7 @@ const isBlank = (v: Values) =>
   v.tags.length === 0
 
 const chipBase =
-  'inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3 text-sm transition-[color,background-color,opacity,transform] duration-150 active:scale-[0.96]'
+  'inline-flex min-h-11 items-center gap-1.5 rounded-full border px-3 text-sm transition-[color,background-color,opacity,transform] duration-150 active:scale-[0.97]'
 
 type Props = {
   /** Present when editing an existing moment. */
@@ -241,22 +241,6 @@ export function EntryForm({
       }}
       className="flex flex-col gap-6"
     >
-      {restored ? (
-        <div
-          role="status"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted px-4 py-3 text-sm"
-        >
-          <span>We restored your unsaved draft.</span>
-          <button
-            type="button"
-            onClick={discardDraft}
-            className="min-h-11 font-medium text-primary underline-offset-4 hover:underline"
-          >
-            Start over
-          </button>
-        </div>
-      ) : null}
-
       <FormField
         label="Date"
         name="entryDate"
@@ -449,6 +433,23 @@ export function EntryForm({
         <p role="alert" className="text-sm text-destructive">
           {formError}
         </p>
+      ) : null}
+
+      {/* Below the fields so restoring a draft doesn't push the form down. */}
+      {restored ? (
+        <div
+          role="status"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted px-4 py-3 text-sm"
+        >
+          <span>We restored your unsaved draft.</span>
+          <button
+            type="button"
+            onClick={discardDraft}
+            className="min-h-11 font-medium text-primary underline-offset-4 hover:underline"
+          >
+            Start over
+          </button>
+        </div>
       ) : null}
 
       <div className="flex flex-wrap items-center gap-3">

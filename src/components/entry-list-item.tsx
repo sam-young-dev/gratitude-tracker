@@ -10,7 +10,7 @@ function excerpt(text: string, max = 180) {
 
 export function EntryListItem({ entry }: { entry: EntrySummary }) {
   return (
-    <li className="flex flex-col gap-2 rounded-xl bg-card p-5 shadow-card">
+    <li className="relative flex flex-col gap-2 rounded-xl bg-card p-5 shadow-card">
       <time
         dateTime={entry.entryDate}
         className="text-sm text-muted-foreground tabular-nums"
@@ -18,10 +18,11 @@ export function EntryListItem({ entry }: { entry: EntrySummary }) {
         {formatEntryDate(entry.entryDate)}
       </time>
       <h3 className="font-serif text-xl font-semibold tracking-tight">
+        {/* The ::after overlay stretches the link over the whole card. */}
         <Link
           to="/moments/$entryId"
           params={{ entryId: entry.id }}
-          className="underline-offset-4 hover:underline"
+          className="underline-offset-4 after:absolute after:inset-0 after:rounded-xl hover:underline"
         >
           {entry.title}
         </Link>

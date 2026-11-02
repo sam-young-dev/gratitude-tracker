@@ -190,11 +190,16 @@ function Moments() {
                 : 'Nothing on this page.'}
             </p>
           ) : (
-            <ul className="flex flex-col gap-4">
-              {visible.map((entry) => (
-                <EntryListItem key={entry.id} entry={entry} />
-              ))}
-            </ul>
+            <section aria-labelledby="results-heading">
+              <h2 id="results-heading" className="sr-only">
+                Moments
+              </h2>
+              <ul className="flex flex-col gap-4">
+                {visible.map((entry) => (
+                  <EntryListItem key={entry.id} entry={entry} />
+                ))}
+              </ul>
+            </section>
           )}
 
           {pageCount > 1 ? (

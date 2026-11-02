@@ -15,7 +15,10 @@ import { authClient } from '@/lib/auth-client'
 import { exportFilename, toJson, toMarkdown } from '@/lib/export'
 import { exportEntriesFn } from '@/lib/journal.functions'
 
-export const Route = createFileRoute('/_app/settings')({ component: Settings })
+export const Route = createFileRoute('/_app/settings')({
+  head: () => ({ meta: [{ title: 'Settings · Gratitude Tracker' }] }),
+  component: Settings,
+})
 
 type Theme = 'light' | 'dark' | 'system'
 const THEMES: Array<{ value: Theme; label: string }> = [
@@ -52,7 +55,7 @@ function download(filename: string, text: string, type: string) {
   link.href = url
   link.download = filename
   link.click()
-  URL.revokeObjectURL(url)
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
 function Settings() {
@@ -156,16 +159,11 @@ function Settings() {
 
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-medium text-muted-foreground">Theme</h2>
-        <div
-          role="radiogroup"
-          aria-label="Theme"
-          className="flex flex-wrap gap-3"
-        >
+        <div role="group" aria-label="Theme" className="flex flex-wrap gap-3">
           {THEMES.map((option) => (
             <Button
               key={option.value}
-              role="radio"
-              aria-checked={theme === option.value}
+              aria-pressed={theme === option.value}
               variant="outline"
               data-theme-option={option.value}
               className="h-11"

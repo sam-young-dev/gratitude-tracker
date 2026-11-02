@@ -23,7 +23,16 @@ export function OnThisDay() {
     }
   }, [])
 
-  if (!rows || rows.length === 0) return null
+  // Hold the space while loading so the list below doesn't jump.
+  if (!rows) {
+    return (
+      <div
+        className="h-40 animate-pulse rounded-xl bg-muted/60"
+        aria-hidden="true"
+      />
+    )
+  }
+  if (rows.length === 0) return null
 
   return (
     <section className="flex flex-col gap-4" aria-labelledby="otd-heading">

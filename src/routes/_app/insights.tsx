@@ -153,7 +153,12 @@ function Insights() {
           {lastYear} {lastYear === 1 ? 'moment' : 'moments'} in the last 53
           weeks. Each square is a day; darker means more moments.
         </p>
-        <div className="overflow-x-auto">
+        <div
+          className="overflow-x-auto"
+          tabIndex={0}
+          role="region"
+          aria-label="Heat map, scrollable"
+        >
           <div className="min-w-[640px]">
             <HeatMap
               counts={counts}

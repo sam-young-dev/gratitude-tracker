@@ -126,6 +126,7 @@
 
   html {
     @apply bg-background font-sans text-foreground antialiased;
+    font-synthesis: none;
     -webkit-text-size-adjust: 100%;
   }
 

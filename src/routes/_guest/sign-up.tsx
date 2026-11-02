@@ -79,7 +79,7 @@ function SignUp() {
         <FormField
           label="Your name"
           name="name"
-          autoComplete="given-name"
+          autoComplete="name"
           error={errors.name}
         />
         <FormField

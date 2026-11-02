@@ -9,6 +9,7 @@ import { usePendingDeleteIds } from '@/lib/pending-deletes'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_app/')({
+  head: () => ({ meta: [{ title: 'Home · Gratitude Tracker' }] }),
   loader: async () => {
     const [recent, tags, heat] = await Promise.all([
       listEntriesFn({ data: { limit: 5 } }),

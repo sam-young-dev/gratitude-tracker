@@ -38,7 +38,16 @@ export const Route = createRootRoute({
         name: 'color-scheme',
         content: 'light dark',
       },
-      { name: 'theme-color', content: '#f3ead8' },
+      {
+        name: 'theme-color',
+        content: '#f3ead8',
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        name: 'theme-color',
+        content: '#26221e',
+        media: '(prefers-color-scheme: dark)',
+      },
     ],
     links: [
       { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
@@ -61,7 +70,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         {children}
         <HydrationMarker />
-        <Toaster position="bottom-center" />
+        <Toaster
+          position="bottom-center"
+          mobileOffset={{ bottom: 'calc(4.5rem + env(safe-area-inset-bottom))' }}
+        />
         {import.meta.env.DEV ? (
           <TanStackDevtools
             config={{
