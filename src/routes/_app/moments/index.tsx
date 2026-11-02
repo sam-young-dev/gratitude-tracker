@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select'
 import { PAGE_SIZE } from '@/lib/entry-schema'
 import { listTagsFn, searchEntriesFn } from '@/lib/journal.functions'
-import { usePendingDeleteIds } from '@/lib/pending-deletes'
+import { usePendingDeleteIds, wasRestored } from '@/lib/pending-deletes'
 import { cn } from '@/lib/utils'
 
 type Search = { q?: string; tag?: string; year?: number; page?: number }
@@ -245,7 +245,11 @@ function Moments() {
               </h2>
               <ul className="flex flex-col gap-4">
                 {visible.map((entry) => (
-                  <EntryListItem key={entry.id} entry={entry} />
+                  <EntryListItem
+                    key={entry.id}
+                    entry={entry}
+                    restored={wasRestored(entry.id)}
+                  />
                 ))}
               </ul>
             </section>

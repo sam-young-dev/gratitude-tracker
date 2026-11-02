@@ -61,6 +61,8 @@ type Props = {
   draftKey?: string
   submitLabel: string
   onCancel?: () => void
+  /** First moment ever: the detail page plays a short entrance after saving. */
+  celebrate?: boolean
 }
 
 export function EntryForm({
@@ -70,6 +72,7 @@ export function EntryForm({
   draftKey,
   submitLabel,
   onCancel,
+  celebrate,
 }: Props) {
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
@@ -182,7 +185,7 @@ export function EntryForm({
     }
     // The browser knows the person's real "today"; the server can only approximate.
     if (!next.entryDate && values.entryDate > todayLocal()) {
-      next.entryDate = "Moments can’t be dated in the future."
+      next.entryDate = 'Moments can’t be dated in the future.'
     }
     setErrors(next)
     setFormError(undefined)
@@ -220,10 +223,11 @@ export function EntryForm({
       await router.navigate({
         to: '/moments/$entryId',
         params: { entryId: id! },
+        search: celebrate && !entryId ? { first: true } : undefined,
       })
     } catch {
       setFormError(
-        "We couldn’t save your moment. Your writing is still here, so check your connection and try again.",
+        'We couldn’t save your moment. Your writing is still here, so check your connection and try again.',
       )
       setPending(false)
     }
@@ -375,7 +379,7 @@ export function EntryForm({
         </p>
       </fieldset>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col">
         <Button
           type="button"
           variant="link"
@@ -385,51 +389,66 @@ export function EntryForm({
           className="w-fit px-0"
         >
           <ChevronRight
-            className={cn('size-4', detailsOpen && 'rotate-90')}
+            className={cn(
+              'size-4 transition-transform duration-150 ease-out-strong',
+              detailsOpen && 'rotate-90',
+            )}
             aria-hidden="true"
           />
           {detailsOpen ? 'Hide details' : 'Add details'}
         </Button>
+        {/* grid-rows 0fr/1fr animates to the content's own height; inert keeps
+            the collapsed fields out of the tab order. */}
         <div
           id="entry-details"
-          hidden={!detailsOpen}
-          className="flex flex-col gap-6"
+          inert={!detailsOpen}
+          className={cn(
+            'grid transition-[grid-template-rows,opacity] duration-200 ease-out-strong',
+            detailsOpen
+              ? 'grid-rows-[1fr] opacity-100'
+              : 'grid-rows-[0fr] opacity-0',
+          )}
         >
-          <FormField
-            label="Scripture"
-            name="scripture"
-            value={values.scripture}
-            maxLength={200}
-            autoComplete="off"
-            hint="For example, Psalm 34:8."
-            onChange={(e) => set('scripture', e.target.value)}
-            error={errors.scripture}
-          />
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="entry-outcome">How it turned out</Label>
-            <Textarea
-              id="entry-outcome"
-              name="outcome"
-              value={values.outcome}
-              onChange={(e) => set('outcome', e.target.value)}
-              aria-invalid={errors.outcome ? true : undefined}
-              rows={4}
-              className="min-h-28 font-serif text-lg leading-relaxed md:text-lg"
+          <div className="-mx-1 flex min-h-0 flex-col gap-6 overflow-hidden px-1 pt-4 pb-1">
+            <FormField
+              label="Scripture"
+              name="scripture"
+              value={values.scripture}
+              maxLength={200}
+              autoComplete="off"
+              hint="For example, Psalm 34:8."
+              onChange={(e) => set('scripture', e.target.value)}
+              error={errors.scripture}
             />
-            <p className="text-sm text-muted-foreground">
-              Leave this blank now and come back when you know.
-            </p>
-            {errors.outcome ? (
-              <p role="alert" className="text-sm text-destructive">
-                {errors.outcome}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="entry-outcome">How it turned out</Label>
+              <Textarea
+                id="entry-outcome"
+                name="outcome"
+                value={values.outcome}
+                onChange={(e) => set('outcome', e.target.value)}
+                aria-invalid={errors.outcome ? true : undefined}
+                rows={4}
+                className="min-h-28 font-serif text-lg leading-relaxed md:text-lg"
+              />
+              <p className="text-sm text-muted-foreground">
+                Leave this blank now and come back when you know.
               </p>
-            ) : null}
+              {errors.outcome ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {errors.outcome}
+                </p>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
 
       {formError ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p
+          role="alert"
+          className="text-sm text-destructive transition-[opacity,translate] duration-200 ease-out-strong starting:translate-y-1 starting:opacity-0"
+        >
           {formError}
         </p>
       ) : null}
@@ -438,7 +457,7 @@ export function EntryForm({
       {restored ? (
         <div
           role="status"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted px-4 py-3 text-sm"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted px-4 py-3 text-sm transition-[opacity,translate] duration-200 ease-out-strong starting:translate-y-1 starting:opacity-0"
         >
           <span>We restored your unsaved draft.</span>
           <Button type="button" variant="link" onClick={discardDraft}>

@@ -23,6 +23,11 @@ const unhide = (id: string) => {
   setHidden(next)
 }
 
+// Ids just brought back by Undo, so their list item can play an entrance. Only
+// Undo counts: a failed or settled delete also unhides, but shouldn't fade in.
+const restored = new Set<string>()
+export const wasRestored = (id: string) => restored.has(id)
+
 /** Ids that were deleted but are still inside their undo window. */
 export function usePendingDeleteIds() {
   return useSyncExternalStore(
@@ -49,7 +54,7 @@ export function deleteWithUndo(
     try {
       await deleteEntryFn({ data: { id: entry.id } })
     } catch {
-      toast.error("We couldn’t delete that moment. It’s still in your journal.")
+      toast.error('We couldn’t delete that moment. It’s still in your journal.')
     } finally {
       unhide(entry.id)
       onSettled()
@@ -63,7 +68,9 @@ export function deleteWithUndo(
       label: 'Undo',
       onClick: () => {
         undone = true
+        restored.add(entry.id)
         unhide(entry.id)
+        setTimeout(() => restored.delete(entry.id), 500)
         onSettled()
       },
     },

@@ -30,6 +30,10 @@ import type { EntrySummary } from '@/server/journal'
 
 export const Route = createFileRoute('/_app/moments/$entryId/')({
   head: () => ({ meta: [{ title: 'Moment · Gratitude Tracker' }] }),
+  // Set once, after a person's first-ever save, to play a short entrance.
+  validateSearch: (search: Record<string, unknown>): { first?: boolean } => ({
+    first: search.first === true || search.first === 'true' ? true : undefined,
+  }),
   loader: async ({ params }) => {
     const entry = await getEntryFn({ data: { id: params.entryId } })
     if (!entry) throw notFound()
@@ -41,7 +45,15 @@ export const Route = createFileRoute('/_app/moments/$entryId/')({
 function MomentDetail() {
   const { entry } = Route.useLoaderData()
   const router = useRouter()
+  const { first } = Route.useSearch()
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+
+  // First moment only: header, body and outcome settle in, 40ms apart.
+  const enter = first
+    ? 'transition-[opacity,translate] duration-300 ease-out-strong starting:translate-y-2 starting:opacity-0'
+    : undefined
+  const stagger = (index: number) =>
+    first ? { transitionDelay: `${index * 40}ms` } : undefined
 
   function remove() {
     setConfirmingDelete(false)
@@ -59,7 +71,7 @@ function MomentDetail() {
         All moments
       </Link>
 
-      <header className="flex flex-col gap-3">
+      <header className={cn('flex flex-col gap-3', enter)} style={stagger(0)}>
         <time
           dateTime={entry.entryDate}
           className="text-sm text-muted-foreground tabular-nums"
@@ -80,7 +92,9 @@ function MomentDetail() {
         ) : null}
       </header>
 
-      <Paragraphs text={entry.body} />
+      <div className={enter} style={stagger(1)}>
+        <Paragraphs text={entry.body} />
+      </div>
 
       {entry.scripture ? (
         <p className="text-sm text-muted-foreground">
@@ -92,7 +106,9 @@ function MomentDetail() {
         </p>
       ) : null}
 
-      <Outcome entry={entry} />
+      <div className={enter} style={stagger(2)}>
+        <Outcome entry={entry} />
+      </div>
 
       <div className="flex flex-col gap-10 border-t pt-6">
         <Link
@@ -172,7 +188,7 @@ function Outcome({ entry }: { entry: EntrySummary }) {
       await router.invalidate()
       setEditing(false)
     } catch {
-      setError("We couldn’t save that. Your text is still here, so try again.")
+      setError('We couldn’t save that. Your text is still here, so try again.')
     } finally {
       setPending(false)
     }
