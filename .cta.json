@@ -1,5 +1,5 @@
 {
-  "projectName": "gratitude-graph",
+  "projectName": "gratitude-tracker",
   "mode": "file-router",
   "bundler": "vite",
   "typescript": true,

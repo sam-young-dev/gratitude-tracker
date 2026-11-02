@@ -3,7 +3,8 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import appCss from '../styles.css?url'
-import { AppShell } from '@/components/app-shell'
+import { HydrationMarker } from '@/components/hydration-marker'
+import { Toaster } from '@/components/ui/sonner'
 
 // Runs before first paint so a dark-mode user never sees a light flash.
 const themeScript = `(() => {
@@ -25,7 +26,7 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1, viewport-fit=cover',
       },
       {
-        title: 'Gratitude Graph',
+        title: 'Gratitude Tracker',
       },
       {
         name: 'description',
@@ -35,8 +36,10 @@ export const Route = createRootRoute({
         name: 'color-scheme',
         content: 'light dark',
       },
+      { name: 'theme-color', content: '#f3ead8' },
     ],
     links: [
+      { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
       {
         rel: 'stylesheet',
         href: appCss,
@@ -54,7 +57,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <AppShell>{children}</AppShell>
+        {children}
+        <HydrationMarker />
+        <Toaster position="bottom-center" />
         {import.meta.env.DEV ? (
           <TanStackDevtools
             config={{

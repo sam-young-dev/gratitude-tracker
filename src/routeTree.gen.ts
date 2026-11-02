@@ -9,122 +9,354 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as InsightsRouteImport } from './routes/insights'
-import { Route as MomentsRouteImport } from './routes/moments'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as TagsRouteImport } from './routes/tags'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as GuestRouteImport } from './routes/_guest'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppInsightsRouteImport } from './routes/_app/insights'
+import { Route as AppSettingsRouteImport } from './routes/_app/settings'
+import { Route as AppTagsRouteImport } from './routes/_app/tags'
+import { Route as GuestForgotPasswordRouteImport } from './routes/_guest/forgot-password'
+import { Route as GuestSignInRouteImport } from './routes/_guest/sign-in'
+import { Route as GuestSignUpRouteImport } from './routes/_guest/sign-up'
+import { Route as AppMomentsIndexRouteImport } from './routes/_app/moments/index'
+import { Route as AppMomentsNewRouteImport } from './routes/_app/moments/new'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AppMomentsEntryIdIndexRouteImport } from './routes/_app/moments/$entryId/index'
+import { Route as AppMomentsEntryIdEditRouteImport } from './routes/_app/moments/$entryId/edit'
 
-const IndexRoute = IndexRouteImport.update({
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuestRoute = GuestRouteImport.update({
+  id: '/_guest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const InsightsRoute = InsightsRouteImport.update({
+const AppInsightsRoute = AppInsightsRouteImport.update({
   id: '/insights',
   path: '/insights',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const MomentsRoute = MomentsRouteImport.update({
-  id: '/moments',
-  path: '/moments',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
+const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const TagsRoute = TagsRouteImport.update({
+const AppTagsRoute = AppTagsRouteImport.update({
   id: '/tags',
   path: '/tags',
+  getParentRoute: () => AppRoute,
+} as any)
+const GuestForgotPasswordRoute = GuestForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => GuestRoute,
+} as any)
+const GuestSignInRoute = GuestSignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => GuestRoute,
+} as any)
+const GuestSignUpRoute = GuestSignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => GuestRoute,
+} as any)
+const AppMomentsIndexRoute = AppMomentsIndexRouteImport.update({
+  id: '/moments/',
+  path: '/moments/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMomentsNewRoute = AppMomentsNewRouteImport.update({
+  id: '/moments/new',
+  path: '/moments/new',
+  getParentRoute: () => AppRoute,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppMomentsEntryIdIndexRoute = AppMomentsEntryIdIndexRouteImport.update({
+  id: '/moments/$entryId/',
+  path: '/moments/$entryId/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMomentsEntryIdEditRoute = AppMomentsEntryIdEditRouteImport.update({
+  id: '/moments/$entryId/edit',
+  path: '/moments/$entryId/edit',
+  getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/insights': typeof InsightsRoute
-  '/moments': typeof MomentsRoute
-  '/settings': typeof SettingsRoute
-  '/tags': typeof TagsRoute
+  '/': typeof AppIndexRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/insights': typeof AppInsightsRoute
+  '/settings': typeof AppSettingsRoute
+  '/tags': typeof AppTagsRoute
+  '/forgot-password': typeof GuestForgotPasswordRoute
+  '/sign-in': typeof GuestSignInRoute
+  '/sign-up': typeof GuestSignUpRoute
+  '/moments/new': typeof AppMomentsNewRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/moments/': typeof AppMomentsIndexRoute
+  '/moments/$entryId/edit': typeof AppMomentsEntryIdEditRoute
+  '/moments/$entryId/': typeof AppMomentsEntryIdIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/insights': typeof InsightsRoute
-  '/moments': typeof MomentsRoute
-  '/settings': typeof SettingsRoute
-  '/tags': typeof TagsRoute
+  '/': typeof AppIndexRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/insights': typeof AppInsightsRoute
+  '/settings': typeof AppSettingsRoute
+  '/tags': typeof AppTagsRoute
+  '/forgot-password': typeof GuestForgotPasswordRoute
+  '/sign-in': typeof GuestSignInRoute
+  '/sign-up': typeof GuestSignUpRoute
+  '/moments/new': typeof AppMomentsNewRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/moments': typeof AppMomentsIndexRoute
+  '/moments/$entryId/edit': typeof AppMomentsEntryIdEditRoute
+  '/moments/$entryId': typeof AppMomentsEntryIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/insights': typeof InsightsRoute
-  '/moments': typeof MomentsRoute
-  '/settings': typeof SettingsRoute
-  '/tags': typeof TagsRoute
+  '/_app': typeof AppRouteWithChildren
+  '/_guest': typeof GuestRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
+  '/_app/insights': typeof AppInsightsRoute
+  '/_app/settings': typeof AppSettingsRoute
+  '/_app/tags': typeof AppTagsRoute
+  '/_guest/forgot-password': typeof GuestForgotPasswordRoute
+  '/_guest/sign-in': typeof GuestSignInRoute
+  '/_guest/sign-up': typeof GuestSignUpRoute
+  '/_app/': typeof AppIndexRoute
+  '/_app/moments/new': typeof AppMomentsNewRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/_app/moments/': typeof AppMomentsIndexRoute
+  '/_app/moments/$entryId/edit': typeof AppMomentsEntryIdEditRoute
+  '/_app/moments/$entryId/': typeof AppMomentsEntryIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/insights' | '/moments' | '/settings' | '/tags'
+  fullPaths:
+    | '/'
+    | '/reset-password'
+    | '/insights'
+    | '/settings'
+    | '/tags'
+    | '/forgot-password'
+    | '/sign-in'
+    | '/sign-up'
+    | '/moments/new'
+    | '/api/auth/$'
+    | '/moments/'
+    | '/moments/$entryId/edit'
+    | '/moments/$entryId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/insights' | '/moments' | '/settings' | '/tags'
-  id: '__root__' | '/' | '/insights' | '/moments' | '/settings' | '/tags'
+  to:
+    | '/'
+    | '/reset-password'
+    | '/insights'
+    | '/settings'
+    | '/tags'
+    | '/forgot-password'
+    | '/sign-in'
+    | '/sign-up'
+    | '/moments/new'
+    | '/api/auth/$'
+    | '/moments'
+    | '/moments/$entryId/edit'
+    | '/moments/$entryId'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/_guest'
+    | '/reset-password'
+    | '/_app/insights'
+    | '/_app/settings'
+    | '/_app/tags'
+    | '/_guest/forgot-password'
+    | '/_guest/sign-in'
+    | '/_guest/sign-up'
+    | '/_app/'
+    | '/_app/moments/new'
+    | '/api/auth/$'
+    | '/_app/moments/'
+    | '/_app/moments/$entryId/edit'
+    | '/_app/moments/$entryId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  InsightsRoute: typeof InsightsRoute
-  MomentsRoute: typeof MomentsRoute
-  SettingsRoute: typeof SettingsRoute
-  TagsRoute: typeof TagsRoute
+  AppRoute: typeof AppRouteWithChildren
+  GuestRoute: typeof GuestRouteWithChildren
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_guest': {
+      id: '/_guest'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof GuestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/': {
+      id: '/_app/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/insights': {
-      id: '/insights'
+    '/_app/insights': {
+      id: '/_app/insights'
       path: '/insights'
       fullPath: '/insights'
-      preLoaderRoute: typeof InsightsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppInsightsRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/moments': {
-      id: '/moments'
-      path: '/moments'
-      fullPath: '/moments'
-      preLoaderRoute: typeof MomentsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
+    '/_app/settings': {
+      id: '/_app/settings'
       path: '/settings'
       fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/tags': {
-      id: '/tags'
+    '/_app/tags': {
+      id: '/_app/tags'
       path: '/tags'
       fullPath: '/tags'
-      preLoaderRoute: typeof TagsRouteImport
+      preLoaderRoute: typeof AppTagsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_guest/forgot-password': {
+      id: '/_guest/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof GuestForgotPasswordRouteImport
+      parentRoute: typeof GuestRoute
+    }
+    '/_guest/sign-in': {
+      id: '/_guest/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof GuestSignInRouteImport
+      parentRoute: typeof GuestRoute
+    }
+    '/_guest/sign-up': {
+      id: '/_guest/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof GuestSignUpRouteImport
+      parentRoute: typeof GuestRoute
+    }
+    '/_app/moments/': {
+      id: '/_app/moments/'
+      path: '/moments'
+      fullPath: '/moments/'
+      preLoaderRoute: typeof AppMomentsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/moments/new': {
+      id: '/_app/moments/new'
+      path: '/moments/new'
+      fullPath: '/moments/new'
+      preLoaderRoute: typeof AppMomentsNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/moments/$entryId/': {
+      id: '/_app/moments/$entryId/'
+      path: '/moments/$entryId'
+      fullPath: '/moments/$entryId/'
+      preLoaderRoute: typeof AppMomentsEntryIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/moments/$entryId/edit': {
+      id: '/_app/moments/$entryId/edit'
+      path: '/moments/$entryId/edit'
+      fullPath: '/moments/$entryId/edit'
+      preLoaderRoute: typeof AppMomentsEntryIdEditRouteImport
+      parentRoute: typeof AppRoute
     }
   }
 }
 
+interface AppRouteChildren {
+  AppInsightsRoute: typeof AppInsightsRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppTagsRoute: typeof AppTagsRoute
+  AppIndexRoute: typeof AppIndexRoute
+  AppMomentsNewRoute: typeof AppMomentsNewRoute
+  AppMomentsIndexRoute: typeof AppMomentsIndexRoute
+  AppMomentsEntryIdEditRoute: typeof AppMomentsEntryIdEditRoute
+  AppMomentsEntryIdIndexRoute: typeof AppMomentsEntryIdIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppInsightsRoute: AppInsightsRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppTagsRoute: AppTagsRoute,
+  AppIndexRoute: AppIndexRoute,
+  AppMomentsNewRoute: AppMomentsNewRoute,
+  AppMomentsIndexRoute: AppMomentsIndexRoute,
+  AppMomentsEntryIdEditRoute: AppMomentsEntryIdEditRoute,
+  AppMomentsEntryIdIndexRoute: AppMomentsEntryIdIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
+interface GuestRouteChildren {
+  GuestForgotPasswordRoute: typeof GuestForgotPasswordRoute
+  GuestSignInRoute: typeof GuestSignInRoute
+  GuestSignUpRoute: typeof GuestSignUpRoute
+}
+
+const GuestRouteChildren: GuestRouteChildren = {
+  GuestForgotPasswordRoute: GuestForgotPasswordRoute,
+  GuestSignInRoute: GuestSignInRoute,
+  GuestSignUpRoute: GuestSignUpRoute,
+}
+
+const GuestRouteWithChildren = GuestRoute._addFileChildren(GuestRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  InsightsRoute: InsightsRoute,
-  MomentsRoute: MomentsRoute,
-  SettingsRoute: SettingsRoute,
-  TagsRoute: TagsRoute,
+  AppRoute: AppRouteWithChildren,
+  GuestRoute: GuestRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
