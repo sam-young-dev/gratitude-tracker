@@ -6,12 +6,14 @@ import appCss from '../styles.css?url'
 import { HydrationMarker } from '@/components/hydration-marker'
 import { Toaster } from '@/components/ui/sonner'
 
-// Runs before first paint so a dark-mode user never sees a light flash.
+// Runs before first paint so a dark-mode user never sees a light flash. It also
+// records the saved choice on <html> so the Settings picker renders correctly.
 const themeScript = `(() => {
   try {
     const stored = localStorage.getItem('theme')
     const dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
     document.documentElement.classList.toggle('dark', dark)
+    document.documentElement.dataset.themePref = stored === 'light' || stored === 'dark' ? stored : 'system'
   } catch {}
 })()`
 
@@ -36,7 +38,16 @@ export const Route = createRootRoute({
         name: 'color-scheme',
         content: 'light dark',
       },
-      { name: 'theme-color', content: '#f3ead8' },
+      {
+        name: 'theme-color',
+        content: '#f3ead8',
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        name: 'theme-color',
+        content: '#26221e',
+        media: '(prefers-color-scheme: dark)',
+      },
     ],
     links: [
       { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
@@ -59,7 +70,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         {children}
         <HydrationMarker />
-        <Toaster position="bottom-center" />
+        <Toaster
+          position="bottom-center"
+          mobileOffset={{ bottom: 'calc(4.5rem + env(safe-area-inset-bottom))' }}
+        />
         {import.meta.env.DEV ? (
           <TanStackDevtools
             config={{

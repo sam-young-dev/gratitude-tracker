@@ -11,11 +11,16 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { authClient } from '@/lib/auth-client'
 import { exportFilename, toJson, toMarkdown } from '@/lib/export'
 import { exportEntriesFn } from '@/lib/journal.functions'
 
-export const Route = createFileRoute('/_app/settings')({ component: Settings })
+export const Route = createFileRoute('/_app/settings')({
+  head: () => ({ meta: [{ title: 'Settings · Gratitude Tracker' }] }),
+  component: Settings,
+})
 
 type Theme = 'light' | 'dark' | 'system'
 const THEMES: Array<{ value: Theme; label: string }> = [
@@ -43,6 +48,7 @@ function applyTheme(theme: Theme) {
       ? matchMedia('(prefers-color-scheme: dark)').matches
       : theme === 'dark'
   document.documentElement.classList.toggle('dark', dark)
+  document.documentElement.dataset.themePref = theme
 }
 
 function download(filename: string, text: string, type: string) {
@@ -51,7 +57,7 @@ function download(filename: string, text: string, type: string) {
   link.href = url
   link.download = filename
   link.click()
-  URL.revokeObjectURL(url)
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
 function Settings() {
@@ -65,7 +71,8 @@ function Settings() {
   const [deleteError, setDeleteError] = useState<string>()
   const [deleting, setDeleting] = useState(false)
 
-  // localStorage isn't available during server render, so read it after mount.
+  // The selected button is styled from <html data-theme-pref> (see styles.css) so
+  // it is right on first paint; this state only keeps aria-checked in sync.
   useEffect(() => setTheme(readTheme()), [])
 
   function chooseTheme(next: Theme) {
@@ -101,7 +108,7 @@ function Settings() {
         )
       }
     } catch {
-      toast.error("We couldn't export your moments. Try again.")
+      toast.error('We couldn’t export your moments. Try again.')
     } finally {
       setExporting(undefined)
     }
@@ -120,8 +127,8 @@ function Settings() {
     if (error) {
       setDeleteError(
         error.status === 400
-          ? "That password isn't right."
-          : "We couldn't delete your account. Try again.",
+          ? 'That password isn’t right.'
+          : 'We couldn’t delete your account. Try again.',
       )
       setDeleting(false)
       return
@@ -154,17 +161,13 @@ function Settings() {
 
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-medium text-muted-foreground">Theme</h2>
-        <div
-          role="radiogroup"
-          aria-label="Theme"
-          className="flex flex-wrap gap-3"
-        >
+        <div role="group" aria-label="Theme" className="flex flex-wrap gap-3">
           {THEMES.map((option) => (
             <Button
               key={option.value}
-              role="radio"
-              aria-checked={theme === option.value}
-              variant={theme === option.value ? 'default' : 'outline'}
+              aria-pressed={theme === option.value}
+              variant="outline"
+              data-theme-option={option.value}
               className="h-11"
               onClick={() => chooseTheme(option.value)}
             >
@@ -241,10 +244,8 @@ function Settings() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="flex flex-col gap-2">
-              <label htmlFor="delete-password" className="text-sm font-medium">
-                Your password
-              </label>
-              <input
+              <Label htmlFor="delete-password">Your password</Label>
+              <Input
                 id="delete-password"
                 type="password"
                 autoComplete="current-password"
@@ -252,7 +253,7 @@ function Settings() {
                 onChange={(e) => setPassword(e.target.value)}
                 aria-invalid={deleteError ? true : undefined}
                 aria-describedby={deleteError ? 'delete-error' : undefined}
-                className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive md:text-sm dark:bg-input/30"
+                className="h-11"
               />
               {deleteError ? (
                 <p

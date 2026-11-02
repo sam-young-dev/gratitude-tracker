@@ -28,7 +28,7 @@
   --destructive: oklch(0.52 0.19 27);
   --border: oklch(0.25 0.02 60 / 0.1);
   --input: oklch(0.25 0.02 60 / 0.16);
-  --ring: oklch(0.6 0.14 68);
+  --ring: oklch(0.45 0.01 60);
   --radius: 0.75rem;
 
   /* Heat map ramp: lightness steps are even, hue drifts from gold to burnt amber. */
@@ -64,7 +64,7 @@
   --destructive: oklch(0.7 0.16 25);
   --border: oklch(0.32 0.012 60);
   --input: oklch(0.36 0.012 60);
-  --ring: oklch(0.72 0.11 75);
+  --ring: oklch(0.75 0.01 75);
 
   --heat-0: oklch(0.275 0.01 62);
   --heat-1: oklch(0.38 0.06 72);
@@ -79,6 +79,7 @@
 }
 
 @theme inline {
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
   --font-sans:
     'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
     sans-serif;
@@ -126,6 +127,7 @@
 
   html {
     @apply bg-background font-sans text-foreground antialiased;
+    font-synthesis: none;
     -webkit-text-size-adjust: 100%;
   }
 
@@ -149,6 +151,16 @@
   }
 }
 
+/* Settings theme picker: the pre-paint script sets data-theme-pref on <html>, so
+   the selected option never flashes the wrong state. */
+[data-theme-pref='light'] [data-theme-option='light'],
+[data-theme-pref='dark'] [data-theme-option='dark'],
+[data-theme-pref='system'] [data-theme-option='system'] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: transparent;
+}
+
 /* Entry text: serif, capped measure, paragraph spacing tied to line-height. */
 .prose-entry {
   @apply font-serif text-lg;
@@ -167,7 +179,8 @@
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    /* Drop movement but keep colour and opacity fades. */
+    transition-property: color, background-color, border-color, opacity !important;
     scroll-behavior: auto !important;
   }
 }

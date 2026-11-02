@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { todayLocal } from '@/lib/dates'
@@ -48,7 +49,7 @@ const isBlank = (v: Values) =>
   v.tags.length === 0
 
 const chipBase =
-  'inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-sm transition-colors duration-150'
+  'inline-flex min-h-11 items-center gap-1.5 rounded-full border px-3 text-sm transition-[color,background-color,opacity,transform] duration-150 ease-out-strong active:scale-[0.97]'
 
 type Props = {
   /** Present when editing an existing moment. */
@@ -60,6 +61,8 @@ type Props = {
   draftKey?: string
   submitLabel: string
   onCancel?: () => void
+  /** First moment ever: the detail page plays a short entrance after saving. */
+  celebrate?: boolean
 }
 
 export function EntryForm({
@@ -69,6 +72,7 @@ export function EntryForm({
   draftKey,
   submitLabel,
   onCancel,
+  celebrate,
 }: Props) {
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
@@ -142,7 +146,7 @@ export function EntryForm({
     const name = normalizeTag(raw)
     if (!name) return
     if (values.tags.some((t) => tagKey(t) === tagKey(name))) {
-      setTagError(`"${name}" is already added.`)
+      setTagError(`“${name}” is already added.`)
       return
     }
     if (values.tags.length >= MAX_TAGS) {
@@ -181,7 +185,7 @@ export function EntryForm({
     }
     // The browser knows the person's real "today"; the server can only approximate.
     if (!next.entryDate && values.entryDate > todayLocal()) {
-      next.entryDate = "Moments can't be dated in the future."
+      next.entryDate = 'Moments can’t be dated in the future.'
     }
     setErrors(next)
     setFormError(undefined)
@@ -219,10 +223,11 @@ export function EntryForm({
       await router.navigate({
         to: '/moments/$entryId',
         params: { entryId: id! },
+        search: celebrate && !entryId ? { first: true } : undefined,
       })
     } catch {
       setFormError(
-        "We couldn't save your moment. Your writing is still here, so check your connection and try again.",
+        'We couldn’t save your moment. Your writing is still here, so check your connection and try again.',
       )
       setPending(false)
     }
@@ -241,22 +246,6 @@ export function EntryForm({
       }}
       className="flex flex-col gap-6"
     >
-      {restored ? (
-        <div
-          role="status"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted px-4 py-3 text-sm"
-        >
-          <span>We restored your unsaved draft.</span>
-          <button
-            type="button"
-            onClick={discardDraft}
-            className="min-h-11 font-medium text-primary underline-offset-4 hover:underline"
-          >
-            Start over
-          </button>
-        </div>
-      ) : null}
-
       <FormField
         label="Date"
         name="entryDate"
@@ -317,7 +306,7 @@ export function EntryForm({
                   aria-label={`Remove tag ${name}`}
                   className={cn(
                     chipBase,
-                    'border-transparent bg-primary text-primary-foreground hover:opacity-90',
+                    'border-transparent bg-primary pr-2.5 text-primary-foreground hover:opacity-90',
                   )}
                 >
                   {name}
@@ -339,7 +328,7 @@ export function EntryForm({
                   aria-label={`Add tag ${name}`}
                   className={cn(
                     chipBase,
-                    'border-border bg-card text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:text-muted-foreground',
+                    'border-border bg-card pl-2.5 text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:text-muted-foreground',
                   )}
                 >
                   <Plus className="size-3.5" aria-hidden="true" />
@@ -351,7 +340,7 @@ export function EntryForm({
         ) : null}
 
         <div className="flex gap-2">
-          <input
+          <Input
             aria-label="New tag name"
             value={tagDraft}
             maxLength={MAX_TAG_LENGTH}
@@ -364,7 +353,7 @@ export function EntryForm({
                 addTag(tagDraft)
               }
             }}
-            className="h-11 min-w-0 flex-1 rounded-lg border border-input bg-transparent px-3 text-base outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30"
+            className="h-11 flex-1"
           />
           <Button
             type="button"
@@ -379,76 +368,102 @@ export function EntryForm({
         <p
           role={tagError ? 'alert' : undefined}
           className={cn(
-            'text-sm',
+            'text-sm tabular-nums',
             tagError ? 'text-destructive' : 'text-muted-foreground',
           )}
         >
           {tagError ??
             (atTagLimit
-              ? `You've reached the limit of ${MAX_TAGS} tags.`
+              ? `You’ve reached the limit of ${MAX_TAGS} tags.`
               : `${values.tags.length} of ${MAX_TAGS} tags used.`)}
         </p>
       </fieldset>
 
-      <div className="flex flex-col gap-4">
-        <button
+      <div className="flex flex-col">
+        <Button
           type="button"
+          variant="link"
           onClick={() => setDetailsOpen((open) => !open)}
           aria-expanded={detailsOpen}
           aria-controls="entry-details"
-          className="flex min-h-11 w-fit items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline"
+          className="w-fit px-0"
         >
           <ChevronRight
             className={cn(
-              'size-4 transition-transform duration-150',
+              'size-4 transition-transform duration-150 ease-out-strong',
               detailsOpen && 'rotate-90',
             )}
             aria-hidden="true"
           />
           {detailsOpen ? 'Hide details' : 'Add details'}
-        </button>
+        </Button>
+        {/* grid-rows 0fr/1fr animates to the content's own height; inert keeps
+            the collapsed fields out of the tab order. */}
         <div
           id="entry-details"
-          hidden={!detailsOpen}
-          className="flex flex-col gap-6"
+          inert={!detailsOpen}
+          className={cn(
+            'grid transition-[grid-template-rows,opacity] duration-200 ease-out-strong',
+            detailsOpen
+              ? 'grid-rows-[1fr] opacity-100'
+              : 'grid-rows-[0fr] opacity-0',
+          )}
         >
-          <FormField
-            label="Scripture"
-            name="scripture"
-            value={values.scripture}
-            maxLength={200}
-            autoComplete="off"
-            hint="For example, Psalm 34:8."
-            onChange={(e) => set('scripture', e.target.value)}
-            error={errors.scripture}
-          />
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="entry-outcome">How it turned out</Label>
-            <Textarea
-              id="entry-outcome"
-              name="outcome"
-              value={values.outcome}
-              onChange={(e) => set('outcome', e.target.value)}
-              aria-invalid={errors.outcome ? true : undefined}
-              rows={4}
-              className="min-h-28 font-serif text-lg leading-relaxed md:text-lg"
+          <div className="-mx-1 flex min-h-0 flex-col gap-6 overflow-hidden px-1 pt-4 pb-1">
+            <FormField
+              label="Scripture"
+              name="scripture"
+              value={values.scripture}
+              maxLength={200}
+              autoComplete="off"
+              hint="For example, Psalm 34:8."
+              onChange={(e) => set('scripture', e.target.value)}
+              error={errors.scripture}
             />
-            <p className="text-sm text-muted-foreground">
-              Leave this blank now and come back when you know.
-            </p>
-            {errors.outcome ? (
-              <p role="alert" className="text-sm text-destructive">
-                {errors.outcome}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="entry-outcome">How it turned out</Label>
+              <Textarea
+                id="entry-outcome"
+                name="outcome"
+                value={values.outcome}
+                onChange={(e) => set('outcome', e.target.value)}
+                aria-invalid={errors.outcome ? true : undefined}
+                rows={4}
+                className="min-h-28 font-serif text-lg leading-relaxed md:text-lg"
+              />
+              <p className="text-sm text-muted-foreground">
+                Leave this blank now and come back when you know.
               </p>
-            ) : null}
+              {errors.outcome ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {errors.outcome}
+                </p>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
 
       {formError ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p
+          role="alert"
+          className="text-sm text-destructive transition-[opacity,translate] duration-200 ease-out-strong starting:translate-y-1 starting:opacity-0"
+        >
           {formError}
         </p>
+      ) : null}
+
+      {/* Below the fields so restoring a draft doesn't push the form down. */}
+      {restored ? (
+        <div
+          role="status"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted px-4 py-3 text-sm transition-[opacity,translate] duration-200 ease-out-strong starting:translate-y-1 starting:opacity-0"
+        >
+          <span>We restored your unsaved draft.</span>
+          <Button type="button" variant="link" onClick={discardDraft}>
+            Start over
+          </Button>
+        </div>
       ) : null}
 
       <div className="flex flex-wrap items-center gap-3">

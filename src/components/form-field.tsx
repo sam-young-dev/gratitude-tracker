@@ -36,8 +36,8 @@ export function FormField({
           role={error ? 'alert' : undefined}
           className={
             error
-              ? 'flex items-start gap-1.5 text-sm text-destructive'
-              : 'text-sm text-muted-foreground'
+              ? 'flex min-h-5 items-start gap-1.5 text-sm text-destructive'
+              : 'min-h-5 text-sm text-muted-foreground'
           }
         >
           {error ? (

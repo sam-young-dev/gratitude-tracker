@@ -55,7 +55,7 @@ function ForgotPassword() {
     return (
       <AuthLayout
         title="Check your email"
-        description={`If ${sentTo} has an account, we've sent a link to choose a new password. It can take a few minutes to arrive.`}
+        description={`If ${sentTo} has an account, we’ve sent a link to choose a new password. It can take a few minutes to arrive.`}
         footer={back}
       >
         <p className="text-sm text-muted-foreground">
@@ -69,7 +69,7 @@ function ForgotPassword() {
   return (
     <AuthLayout
       title="Reset your password"
-      description="Enter your email and we'll send you a link to choose a new one."
+      description="Enter your email and we’ll send you a link to choose a new one."
       footer={back}
     >
       <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">

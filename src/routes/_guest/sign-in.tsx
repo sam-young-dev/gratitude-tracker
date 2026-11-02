@@ -46,7 +46,7 @@ function SignIn() {
   return (
     <AuthLayout
       title="Welcome back"
-      description="Sign in to see the moments you've written down."
+      description="Sign in to see the moments you’ve written down."
       footer={
         <>
           New here?{' '}

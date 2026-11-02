@@ -83,12 +83,48 @@ export function HeatMap({ counts, end, weeks, compact, ariaLabel }: Props) {
   // Seven rows plus the month labels; cells stay roughly square.
   const height = compact ? 150 : 170
 
+  // Tooltips are hover-only, so the same numbers are available as text.
+  const days = useMemo(
+    () =>
+      counts
+        .filter((row) => row.count > 0)
+        .sort((a, b) => (a.date < b.date ? 1 : -1)),
+    [counts],
+  )
+
   return (
-    <Chart
-      definition={definition}
-      height={height}
-      initialWidth={compact ? 300 : 800}
-      ariaLabel={ariaLabel}
-    />
+    <div>
+      <Chart
+        definition={definition}
+        height={height}
+        initialWidth={compact ? 300 : 800}
+        ariaLabel={ariaLabel}
+      />
+      <details className="text-sm">
+        <summary className="min-h-11 cursor-pointer py-3 text-muted-foreground">
+          Show as a list
+        </summary>
+        {days.length === 0 ? (
+          <p className="text-muted-foreground">No moments in this period.</p>
+        ) : (
+          <table className="w-full max-w-sm text-left tabular-nums">
+            <thead>
+              <tr>
+                <th className="py-1 font-medium">Day</th>
+                <th className="py-1 font-medium">Moments</th>
+              </tr>
+            </thead>
+            <tbody>
+              {days.map((row) => (
+                <tr key={row.date}>
+                  <td className="py-1">{formatEntryDate(row.date)}</td>
+                  <td className="py-1">{row.count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </details>
+    </div>
   )
 }

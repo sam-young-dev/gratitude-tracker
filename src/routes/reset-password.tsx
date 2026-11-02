@@ -27,7 +27,7 @@ function ResetPassword() {
   if (!token || linkError) {
     return (
       <AuthLayout
-        title="This link isn't working"
+        title="This link isn’t working"
         description="Reset links expire after an hour and only work once."
       >
         <Button

@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { Badge } from '@/components/ui/badge'
 import { formatEntryDate } from '@/lib/dates'
+import { cn } from '@/lib/utils'
 import type { EntrySummary } from '@/server/journal'
 
 function excerpt(text: string, max = 180) {
@@ -8,9 +9,22 @@ function excerpt(text: string, max = 180) {
   return flat.length > max ? `${flat.slice(0, max).trimEnd()}…` : flat
 }
 
-export function EntryListItem({ entry }: { entry: EntrySummary }) {
+export function EntryListItem({
+  entry,
+  restored,
+}: {
+  entry: EntrySummary
+  /** Brought back by Undo: ease in rather than reappear. */
+  restored?: boolean
+}) {
   return (
-    <li className="flex flex-col gap-2 rounded-xl bg-card p-5 shadow-card">
+    <li
+      className={cn(
+        'relative flex flex-col gap-2 rounded-xl bg-card p-5 shadow-card',
+        restored &&
+          'transition-[opacity,transform] duration-200 ease-out-strong starting:scale-[0.97] starting:opacity-0',
+      )}
+    >
       <time
         dateTime={entry.entryDate}
         className="text-sm text-muted-foreground tabular-nums"
@@ -18,10 +32,11 @@ export function EntryListItem({ entry }: { entry: EntrySummary }) {
         {formatEntryDate(entry.entryDate)}
       </time>
       <h3 className="font-serif text-xl font-semibold tracking-tight">
+        {/* The ::after overlay stretches the link over the whole card. */}
         <Link
           to="/moments/$entryId"
           params={{ entryId: entry.id }}
-          className="underline-offset-4 hover:underline"
+          className="underline-offset-4 after:absolute after:inset-0 after:rounded-xl hover:underline"
         >
           {entry.title}
         </Link>

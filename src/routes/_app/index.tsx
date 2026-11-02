@@ -5,10 +5,11 @@ import { HeatMap } from '@/components/heat-map'
 import { OnThisDay } from '@/components/on-this-day'
 import { buttonVariants } from '@/components/ui/button'
 import { getHeatFn, listEntriesFn, listTagsFn } from '@/lib/journal.functions'
-import { usePendingDeleteIds } from '@/lib/pending-deletes'
+import { usePendingDeleteIds, wasRestored } from '@/lib/pending-deletes'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_app/')({
+  head: () => ({ meta: [{ title: 'Home · Gratitude Tracker' }] }),
   loader: async () => {
     const [recent, tags, heat] = await Promise.all([
       listEntriesFn({ data: { limit: 5 } }),
@@ -48,6 +49,7 @@ function Home() {
           existingTags={tags.map((tag) => tag.name)}
           draftKey={`gg:draft:${user.id}`}
           submitLabel="Save moment"
+          celebrate
         />
       </div>
     )
@@ -104,7 +106,11 @@ function Home() {
         </h2>
         <ul className="flex flex-col gap-4">
           {visible.map((entry) => (
-            <EntryListItem key={entry.id} entry={entry} />
+            <EntryListItem
+              key={entry.id}
+              entry={entry}
+              restored={wasRestored(entry.id)}
+            />
           ))}
         </ul>
         <Link
