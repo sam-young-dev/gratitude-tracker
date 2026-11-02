@@ -23,10 +23,32 @@ function NotFound() {
   )
 }
 
+function ErrorFallback({ reset }: { reset: () => void }) {
+  return (
+    <div className="flex flex-col items-start gap-4 p-6">
+      <h1 className="font-serif text-3xl font-semibold tracking-tight">
+        Something went wrong
+      </h1>
+      <p className="max-w-[65ch] text-muted-foreground">
+        That didn&rsquo;t load. Your moments are safe. Try again, and if it
+        keeps happening, come back in a little while.
+      </p>
+      <button
+        type="button"
+        onClick={reset}
+        className="min-h-11 py-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
+      >
+        Try again
+      </button>
+    </div>
+  )
+}
+
 export function getRouter() {
   const router = createTanStackRouter({
     routeTree,
     defaultNotFoundComponent: NotFound,
+    defaultErrorComponent: ErrorFallback,
     scrollRestoration: true,
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,

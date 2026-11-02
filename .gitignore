@@ -14,3 +14,7 @@ todos.json
 
 # Local Netlify folder
 .netlify
+
+# Playwright
+test-results/
+playwright-report/
