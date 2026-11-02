@@ -43,6 +43,7 @@ function applyTheme(theme: Theme) {
       ? matchMedia('(prefers-color-scheme: dark)').matches
       : theme === 'dark'
   document.documentElement.classList.toggle('dark', dark)
+  document.documentElement.dataset.themePref = theme
 }
 
 function download(filename: string, text: string, type: string) {
@@ -65,7 +66,8 @@ function Settings() {
   const [deleteError, setDeleteError] = useState<string>()
   const [deleting, setDeleting] = useState(false)
 
-  // localStorage isn't available during server render, so read it after mount.
+  // The selected button is styled from <html data-theme-pref> (see styles.css) so
+  // it is right on first paint; this state only keeps aria-checked in sync.
   useEffect(() => setTheme(readTheme()), [])
 
   function chooseTheme(next: Theme) {
@@ -101,7 +103,7 @@ function Settings() {
         )
       }
     } catch {
-      toast.error("We couldn't export your moments. Try again.")
+      toast.error('We couldn’t export your moments. Try again.')
     } finally {
       setExporting(undefined)
     }
@@ -120,8 +122,8 @@ function Settings() {
     if (error) {
       setDeleteError(
         error.status === 400
-          ? "That password isn't right."
-          : "We couldn't delete your account. Try again.",
+          ? 'That password isn’t right.'
+          : 'We couldn’t delete your account. Try again.',
       )
       setDeleting(false)
       return
@@ -164,7 +166,8 @@ function Settings() {
               key={option.value}
               role="radio"
               aria-checked={theme === option.value}
-              variant={theme === option.value ? 'default' : 'outline'}
+              variant="outline"
+              data-theme-option={option.value}
               className="h-11"
               onClick={() => chooseTheme(option.value)}
             >

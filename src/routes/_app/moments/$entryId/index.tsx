@@ -172,7 +172,7 @@ function Outcome({ entry }: { entry: EntrySummary }) {
       await router.invalidate()
       setEditing(false)
     } catch {
-      setError("We couldn't save that. Your text is still here, so try again.")
+      setError("We couldn’t save that. Your text is still here, so try again.")
     } finally {
       setPending(false)
     }

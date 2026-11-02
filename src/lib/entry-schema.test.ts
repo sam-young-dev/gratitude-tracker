@@ -93,7 +93,7 @@ describe('entryInputSchema', () => {
       'Choose a real date.',
     )
     expect(messages({ ...valid, entryDate: '2999-01-01' })).toContain(
-      "Moments can't be dated in the future.",
+      "Moments can’t be dated in the future.",
     )
   })
   it('allows past dates', () => {

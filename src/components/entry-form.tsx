@@ -48,7 +48,7 @@ const isBlank = (v: Values) =>
   v.tags.length === 0
 
 const chipBase =
-  'inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-sm transition-colors duration-150'
+  'inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3 text-sm transition-[color,background-color,opacity,transform] duration-150 active:scale-[0.96]'
 
 type Props = {
   /** Present when editing an existing moment. */
@@ -142,7 +142,7 @@ export function EntryForm({
     const name = normalizeTag(raw)
     if (!name) return
     if (values.tags.some((t) => tagKey(t) === tagKey(name))) {
-      setTagError(`"${name}" is already added.`)
+      setTagError(`“${name}” is already added.`)
       return
     }
     if (values.tags.length >= MAX_TAGS) {
@@ -181,7 +181,7 @@ export function EntryForm({
     }
     // The browser knows the person's real "today"; the server can only approximate.
     if (!next.entryDate && values.entryDate > todayLocal()) {
-      next.entryDate = "Moments can't be dated in the future."
+      next.entryDate = "Moments can’t be dated in the future."
     }
     setErrors(next)
     setFormError(undefined)
@@ -222,7 +222,7 @@ export function EntryForm({
       })
     } catch {
       setFormError(
-        "We couldn't save your moment. Your writing is still here, so check your connection and try again.",
+        "We couldn’t save your moment. Your writing is still here, so check your connection and try again.",
       )
       setPending(false)
     }
@@ -317,7 +317,7 @@ export function EntryForm({
                   aria-label={`Remove tag ${name}`}
                   className={cn(
                     chipBase,
-                    'border-transparent bg-primary text-primary-foreground hover:opacity-90',
+                    'border-transparent bg-primary pr-2.5 text-primary-foreground hover:opacity-90',
                   )}
                 >
                   {name}
@@ -339,7 +339,7 @@ export function EntryForm({
                   aria-label={`Add tag ${name}`}
                   className={cn(
                     chipBase,
-                    'border-border bg-card text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:text-muted-foreground',
+                    'border-border bg-card pl-2.5 text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:text-muted-foreground',
                   )}
                 >
                   <Plus className="size-3.5" aria-hidden="true" />
@@ -379,13 +379,13 @@ export function EntryForm({
         <p
           role={tagError ? 'alert' : undefined}
           className={cn(
-            'text-sm',
+            'text-sm tabular-nums',
             tagError ? 'text-destructive' : 'text-muted-foreground',
           )}
         >
           {tagError ??
             (atTagLimit
-              ? `You've reached the limit of ${MAX_TAGS} tags.`
+              ? `You’ve reached the limit of ${MAX_TAGS} tags.`
               : `${values.tags.length} of ${MAX_TAGS} tags used.`)}
         </p>
       </fieldset>

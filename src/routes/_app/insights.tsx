@@ -119,10 +119,13 @@ function Insights() {
           Insights
         </h1>
         <div className="flex max-w-[65ch] flex-col items-start gap-4">
-          <p className="text-muted-foreground">
-            Your heat map and the themes you notice most will appear here after
-            your first moment.
-          </p>
+          <div className="flex flex-col gap-2">
+            <h2 className="text-lg font-semibold">Nothing to chart yet</h2>
+            <p className="text-muted-foreground">
+              Your heat map and the themes you notice most will appear here
+              after your first moment.
+            </p>
+          </div>
           <Link
             to="/moments/new"
             className={cn(buttonVariants({ variant: 'outline' }), 'h-11')}

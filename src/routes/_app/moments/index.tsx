@@ -81,10 +81,13 @@ function Moments() {
 
       {total === 0 ? (
         <div className="flex max-w-[65ch] flex-col items-start gap-4">
-          <p className="text-muted-foreground">
-            You haven&rsquo;t written a moment yet. Start with one thing you
-            noticed God doing, big or small. You can add detail later.
-          </p>
+          <div className="flex flex-col gap-2">
+            <h2 className="text-lg font-semibold">No moments yet</h2>
+            <p className="text-muted-foreground">
+              Start with one thing you noticed God doing, big or small. You can
+              add detail later.
+            </p>
+          </div>
           <Link
             to="/moments/new"
             className={cn(buttonVariants({ variant: 'outline' }), 'h-11')}

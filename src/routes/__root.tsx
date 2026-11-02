@@ -6,12 +6,14 @@ import appCss from '../styles.css?url'
 import { HydrationMarker } from '@/components/hydration-marker'
 import { Toaster } from '@/components/ui/sonner'
 
-// Runs before first paint so a dark-mode user never sees a light flash.
+// Runs before first paint so a dark-mode user never sees a light flash. It also
+// records the saved choice on <html> so the Settings picker renders correctly.
 const themeScript = `(() => {
   try {
     const stored = localStorage.getItem('theme')
     const dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
     document.documentElement.classList.toggle('dark', dark)
+    document.documentElement.dataset.themePref = stored === 'light' || stored === 'dark' ? stored : 'system'
   } catch {}
 })()`
 

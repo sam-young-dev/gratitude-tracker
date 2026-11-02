@@ -49,7 +49,7 @@ export function deleteWithUndo(
     try {
       await deleteEntryFn({ data: { id: entry.id } })
     } catch {
-      toast.error("We couldn't delete that moment. It's still in your journal.")
+      toast.error("We couldn’t delete that moment. It’s still in your journal.")
     } finally {
       unhide(entry.id)
       onSettled()

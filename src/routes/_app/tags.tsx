@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { Link, createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import {
@@ -11,9 +11,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { MAX_TAG_LENGTH } from '@/lib/entry-schema'
 import { deleteTagFn, listTagsFn, renameTagFn } from '@/lib/journal.functions'
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_app/tags')({
   head: () => ({ meta: [{ title: 'Tags · Gratitude Tracker' }] }),
@@ -30,10 +31,21 @@ function Tags() {
     <div className="flex max-w-2xl flex-col gap-8">
       <h1 className="font-serif text-3xl font-semibold tracking-tight">Tags</h1>
       {tags.length === 0 ? (
-        <p className="max-w-[65ch] text-muted-foreground">
-          You haven&rsquo;t used any tags yet. Add tags when you write a moment,
-          and they&rsquo;ll be listed here so you can rename or delete them.
-        </p>
+        <div className="flex max-w-[65ch] flex-col items-start gap-4">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-lg font-semibold">No tags yet</h2>
+            <p className="text-muted-foreground">
+              Add tags when you write a moment, and they&rsquo;ll be listed here
+              so you can rename or delete them.
+            </p>
+          </div>
+          <Link
+            to="/moments/new"
+            className={cn(buttonVariants({ variant: 'outline' }), 'h-11')}
+          >
+            Write a moment
+          </Link>
+        </div>
       ) : (
         <ul className="flex flex-col divide-y rounded-xl bg-card shadow-card">
           {tags.map((tag) => (
@@ -73,7 +85,7 @@ function TagRow({ tag }: { tag: Tag }) {
       setEditing(false)
     } catch {
       setError(
-        "We couldn't rename that tag. Check your connection and try again.",
+        "We couldn’t rename that tag. Check your connection and try again.",
       )
     } finally {
       setPending(false)
@@ -84,10 +96,10 @@ function TagRow({ tag }: { tag: Tag }) {
     setConfirmingDelete(false)
     try {
       await deleteTagFn({ data: { id: tag.id } })
-      toast.success(`Deleted tag "${tag.name}"`)
+      toast.success(`Deleted tag “${tag.name}”`)
       await router.invalidate()
     } catch {
-      toast.error("We couldn't delete that tag. Try again.")
+      toast.error("We couldn’t delete that tag. Try again.")
     }
   }
 
