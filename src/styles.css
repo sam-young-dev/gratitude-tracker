@@ -129,6 +129,16 @@
     @apply bg-background font-sans text-foreground antialiased;
     font-synthesis: none;
     -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [role='button'] {
+    touch-action: manipulation;
   }
 
   body {
