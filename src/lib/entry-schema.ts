@@ -56,7 +56,7 @@ export const entryInputSchema = z.object({
     .refine(isRealDate, 'Choose a real date.')
     .refine(
       (value) => value <= latestAcceptedDate(),
-      "Moments can’t be dated in the future.",
+      'Moments can’t be dated in the future.',
     ),
   title: z
     .string()

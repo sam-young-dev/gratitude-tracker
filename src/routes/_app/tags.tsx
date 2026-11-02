@@ -87,7 +87,7 @@ function TagRow({ tag }: { tag: Tag }) {
       setEditing(false)
     } catch {
       setError(
-        "We couldn’t rename that tag. Check your connection and try again.",
+        'We couldn’t rename that tag. Check your connection and try again.',
       )
     } finally {
       setPending(false)
@@ -101,7 +101,7 @@ function TagRow({ tag }: { tag: Tag }) {
       toast.success(`Deleted tag “${tag.name}”`)
       await router.invalidate()
     } catch {
-      toast.error("We couldn’t delete that tag. Try again.")
+      toast.error('We couldn’t delete that tag. Try again.')
     }
   }
 
