@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react'
 import { DayEntries } from '@/components/day-entries'
 import { HeatMap } from '@/components/heat-map'
+import { useDayEntries } from '@/lib/day-search'
 import type { ComponentProps, ReactNode } from 'react'
-import type { EntrySummary } from '@/server/journal'
+import type { LoadedDay } from '@/lib/day-search'
 
 type Props = Omit<
   ComponentProps<typeof HeatMap>,
@@ -10,7 +11,8 @@ type Props = Omit<
 > & {
   /** The selected day, or undefined when the panel is closed. */
   day?: string
-  entries: ReadonlyArray<EntrySummary>
+  /** From the page loader; other days are fetched here when picked. */
+  loadedDay: LoadedDay
   /** Called with the new day, or undefined to close. */
   onDayChange: (day: string | undefined) => void
   /** Wraps the map alone (sizing, scrolling); the panel always takes the full width. */
@@ -20,11 +22,12 @@ type Props = Omit<
 /** A heat map plus the panel of moments for the day picked on it. */
 export function HeatMapDays({
   day,
-  entries,
+  loadedDay,
   onDayChange,
   mapWrapper = (map) => map,
   ...heat
 }: Props) {
+  const [entries, retry] = useDayEntries(day, loadedDay)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const focusPanel = useRef(false)
 
@@ -79,6 +82,7 @@ export function HeatMapDays({
           entries={entries}
           latestDay={heat.end}
           onClose={() => onDayChange(undefined)}
+          onRetry={retry}
           headingRef={headingRef}
         />
       ) : null}

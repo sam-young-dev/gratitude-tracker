@@ -48,7 +48,9 @@ export function getRouter() {
     defaultErrorComponent: ErrorFallback,
     scrollRestoration: true,
     defaultPreload: 'intent',
-    defaultPreloadStaleTime: 0,
+    // Data only changes through this app, and every save or delete calls
+    // router.invalidate(), so revisits and hover preloads can reuse recent loads.
+    defaultStaleTime: 30_000,
   })
 
   return router

@@ -12,21 +12,20 @@ import { cn } from '@/lib/utils'
 export const Route = createFileRoute('/_app/')({
   head: () => ({ meta: [{ title: 'Home · Gratitude Tracker' }] }),
   validateSearch: validateDaySearch,
-  loaderDeps: ({ search }) => ({ day: search.day }),
-  loader: async ({ deps }) => {
-    const [recent, tags, heat, dayEntries] = await Promise.all([
+  loader: async ({ location }) => {
+    const [recent, tags, heat, loadedDay] = await Promise.all([
       listEntriesFn({ data: { limit: 5 } }),
       listTagsFn(),
       getHeatFn({ data: { weeks: 14 } }),
-      loadDayEntries(deps.day),
+      loadDayEntries(location),
     ])
-    return { ...recent, tags, heat, dayEntries }
+    return { ...recent, tags, heat, loadedDay }
   },
   component: Home,
 })
 
 function Home() {
-  const { entries, total, tags, heat, dayEntries } = Route.useLoaderData()
+  const { entries, total, tags, heat, loadedDay } = Route.useLoaderData()
   const { day } = Route.useSearch()
   const setDay = useSetDay()
   const { user } = Route.useRouteContext()
@@ -97,7 +96,7 @@ function Home() {
           compact
           ariaLabel="Heat map of moments per day over the last 14 weeks"
           day={day}
-          entries={dayEntries}
+          loadedDay={loadedDay}
           onDayChange={setDay}
         />
         <Link

@@ -15,13 +15,12 @@ import { cn } from '@/lib/utils'
 export const Route = createFileRoute('/_app/insights')({
   head: () => ({ meta: [{ title: 'Insights · Gratitude Tracker' }] }),
   validateSearch: validateDaySearch,
-  loaderDeps: ({ search }) => ({ day: search.day }),
-  loader: async ({ deps }) => {
-    const [insights, dayEntries] = await Promise.all([
+  loader: async ({ location }) => {
+    const [insights, loadedDay] = await Promise.all([
       getInsightsFn(),
-      loadDayEntries(deps.day),
+      loadDayEntries(location),
     ])
-    return { ...insights, dayEntries }
+    return { ...insights, loadedDay }
   },
   component: Insights,
 })
@@ -38,7 +37,7 @@ function wholeTicks(max: number) {
 }
 
 function Insights() {
-  const { total, monthly, byTag, counts, end, months, dayEntries } =
+  const { total, monthly, byTag, counts, end, months, loadedDay } =
     Route.useLoaderData()
   const { day } = Route.useSearch()
   const setDay = useSetDay()
@@ -181,7 +180,7 @@ function Insights() {
           weeks={53}
           ariaLabel="Heat map of moments per day over the past year"
           day={day}
-          entries={dayEntries}
+          loadedDay={loadedDay}
           onDayChange={setDay}
         />
       </section>
