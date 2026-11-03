@@ -8,10 +8,12 @@ import type { EntrySummary } from '@/server/journal'
 type Props = {
   /** "YYYY-MM-DD". */
   day: string
-  entries: ReadonlyArray<EntrySummary>
+  /** Undefined while loading, null if they couldn't load. */
+  entries: ReadonlyArray<EntrySummary> | null | undefined
   /** Latest day a moment can be added for; later days get no add link. */
   latestDay: string
   onClose: () => void
+  onRetry: () => void
   headingRef?: Ref<HTMLHeadingElement>
 }
 
@@ -20,12 +22,14 @@ export function DayEntries({
   entries,
   latestDay,
   onClose,
+  onRetry,
   headingRef,
 }: Props) {
-  const count = entries.length
+  const count = entries?.length ?? 0
   return (
     <section
       aria-labelledby="day-heading"
+      aria-busy={entries === undefined || undefined}
       className="flex flex-col gap-4 transition-opacity duration-150 ease-out-strong starting:opacity-0"
     >
       <div className="flex items-center justify-between gap-4">
@@ -36,10 +40,12 @@ export function DayEntries({
           className="text-sm font-medium outline-none"
         >
           {formatEntryDate(day)}
-          <span className="text-muted-foreground tabular-nums">
-            {' · '}
-            {count} {count === 1 ? 'moment' : 'moments'}
-          </span>
+          {entries ? (
+            <span className="text-muted-foreground tabular-nums">
+              {' · '}
+              {count} {count === 1 ? 'moment' : 'moments'}
+            </span>
+          ) : null}
         </h3>
         <Button
           type="button"
@@ -50,7 +56,29 @@ export function DayEntries({
           Close
         </Button>
       </div>
-      {count === 0 ? (
+      {entries === undefined ? (
+        // Held back briefly, so a quick load never flashes a placeholder.
+        <div className="transition-opacity delay-150 duration-150 starting:opacity-0">
+          <div
+            className="h-40 rounded-xl bg-muted/60 motion-safe:animate-pulse"
+            aria-hidden="true"
+          />
+        </div>
+      ) : entries === null ? (
+        <div className="flex flex-col items-start gap-1 text-sm">
+          <p className="text-muted-foreground">
+            We couldn&rsquo;t load this day&rsquo;s moments.
+          </p>
+          <Button
+            type="button"
+            variant="link"
+            className="min-h-11 px-0"
+            onClick={onRetry}
+          >
+            Try again
+          </Button>
+        </div>
+      ) : count === 0 ? (
         <div className="flex flex-col items-start gap-1 text-sm">
           <p className="text-muted-foreground">No moments</p>
           {day <= latestDay ? (

@@ -4,6 +4,7 @@ import { AuthLayout } from '@/components/auth-layout'
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
 import { authClient } from '@/lib/auth-client'
+import { forgetSession } from '@/lib/auth.functions'
 import { EMAIL_PROBLEM, authErrorMessage, isEmail } from '@/lib/auth-errors'
 
 export const Route = createFileRoute('/_guest/sign-in')({
@@ -39,6 +40,7 @@ function SignIn() {
       setPending(false)
       return
     }
+    forgetSession()
     await router.invalidate()
     await router.navigate({ to: '/' })
   }

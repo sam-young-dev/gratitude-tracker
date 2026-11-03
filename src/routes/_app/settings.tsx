@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { authClient } from '@/lib/auth-client'
+import { forgetSession } from '@/lib/auth.functions'
 import { exportFilename, toJson, toMarkdown } from '@/lib/export'
 import { exportEntriesFn } from '@/lib/journal.functions'
 
@@ -84,6 +85,7 @@ function Settings() {
     if (signingOut) return
     setSigningOut(true)
     await authClient.signOut()
+    forgetSession()
     await router.invalidate()
     await router.navigate({ to: '/sign-in' })
   }
@@ -133,6 +135,7 @@ function Settings() {
       setDeleting(false)
       return
     }
+    forgetSession()
     await router.invalidate()
     await router.navigate({ to: '/sign-in' })
   }

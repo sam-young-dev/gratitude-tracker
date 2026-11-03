@@ -23,7 +23,12 @@ export const auth = betterAuth({
   },
   // Deleting the user cascades to sessions, accounts, entries and tags (FK onDelete).
   user: { deleteUser: { enabled: true } },
-  session: { expiresIn: 60 * 60 * 24 * 30 }, // 30 days
+  session: {
+    expiresIn: 60 * 60 * 24 * 30, // 30 days
+    // Every server function checks the session; a signed cookie answers that
+    // without a database round trip. A revoked session lasts at most this long.
+    cookieCache: { enabled: true, maxAge: 5 * 60 },
+  },
   // Stored in the database so limits hold across serverless instances.
   rateLimit: {
     enabled: true,
