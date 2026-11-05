@@ -1,26 +1,50 @@
 import { useSyncExternalStore } from 'react'
 import { toast } from 'sonner'
+import { createDeleteQueue } from '@/lib/delete-queue'
 import { deleteEntryFn } from '@/lib/journal.functions'
 
-// Deleting a moment hides it at once and shows an undo toast; the real delete
-// only runs when the toast closes. If the tab is closed first, nothing is
-// deleted, which is the safe way to fail.
+// Deleting a moment hides it at once and shows an undo toast. The real delete
+// is sent when the undo window ends, on this module's own timer rather than the
+// toast's (Sonner pauses its timer while the toast is hovered or touched, and
+// while the tab is hidden). Leaving or backgrounding the page sends any waiting
+// delete straight away, with a keepalive request that outlives the page, so a
+// confirmed delete isn't lost to a reload, a closed tab or a phone app switch.
 
-const UNDO_WINDOW_MS = 6000
+export const UNDO_WINDOW_MS = 6000
 
-let hidden = new Set<string>()
-const listeners = new Set<() => void>()
+// Lets the delete request finish even if the page unloads while it's in flight.
+const keepaliveFetch: typeof fetch = (input, init) =>
+  fetch(input, { ...init, keepalive: true })
 
-function setHidden(next: Set<string>) {
-  hidden = next
-  listeners.forEach((listener) => listener())
-}
+type Pending = { toastId: string | number; onSettled: () => unknown }
+const pending = new Map<string, Pending>()
 
-const hide = (id: string) => setHidden(new Set(hidden).add(id))
-const unhide = (id: string) => {
-  const next = new Set(hidden)
-  next.delete(id)
-  setHidden(next)
+const queue = createDeleteQueue({
+  undoWindowMs: UNDO_WINDOW_MS,
+  commit: (id) => {
+    // Too late to undo now, so the toast offering it goes.
+    const toastId = pending.get(id)?.toastId
+    if (toastId !== undefined) toast.dismiss(toastId)
+    return deleteEntryFn({ data: { id }, fetch: keepaliveFetch })
+  },
+  onSettled: async (id, ok) => {
+    const entry = pending.get(id)
+    pending.delete(id)
+    if (!ok) {
+      toast.error('We couldn’t delete that moment. It’s still in your journal.')
+    }
+    // Keep it hidden until fresh data has loaded, so it doesn't flash back.
+    await entry?.onSettled()
+  },
+})
+
+if (typeof document !== 'undefined') {
+  // `visibilitychange` covers tab switches, app switches and most unloads;
+  // `pagehide` catches the unloads where it doesn't fire (older iOS Safari).
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') void queue.flush()
+  })
+  window.addEventListener('pagehide', () => void queue.flush())
 }
 
 // Ids just brought back by Undo, so their list item can play an entrance. Only
@@ -28,53 +52,35 @@ const unhide = (id: string) => {
 const restored = new Set<string>()
 export const wasRestored = (id: string) => restored.has(id)
 
-/** Ids that were deleted but are still inside their undo window. */
+const noIds: ReadonlySet<string> = new Set()
+
+/** Ids that were deleted but are still inside their undo window or in flight. */
 export function usePendingDeleteIds() {
-  return useSyncExternalStore(
-    (listener) => {
-      listeners.add(listener)
-      return () => listeners.delete(listener)
-    },
-    () => hidden,
-    () => hidden,
-  )
+  return useSyncExternalStore(queue.subscribe, queue.hiddenIds, () => noIds)
 }
 
 export function deleteWithUndo(
   entry: { id: string; title: string },
-  onSettled: () => void,
+  onSettled: () => unknown,
 ) {
-  let undone = false
-  let committed = false
-  hide(entry.id)
+  if (pending.has(entry.id)) return
 
-  const commit = async () => {
-    if (undone || committed) return
-    committed = true
-    try {
-      await deleteEntryFn({ data: { id: entry.id } })
-    } catch {
-      toast.error('We couldn’t delete that moment. It’s still in your journal.')
-    } finally {
-      unhide(entry.id)
-      onSettled()
-    }
-  }
-
-  toast('Moment deleted', {
+  const toastId = toast('Moment deleted', {
     description: entry.title,
     duration: UNDO_WINDOW_MS,
     action: {
       label: 'Undo',
       onClick: () => {
-        undone = true
+        if (!queue.undo(entry.id)) return
+        pending.delete(entry.id)
         restored.add(entry.id)
-        unhide(entry.id)
         setTimeout(() => restored.delete(entry.id), 500)
         onSettled()
       },
     },
-    onDismiss: commit,
-    onAutoClose: commit,
+    // Closing the toast early accepts the delete.
+    onDismiss: () => void queue.send(entry.id),
   })
+  pending.set(entry.id, { toastId, onSettled })
+  queue.schedule(entry.id)
 }
