@@ -128,7 +128,7 @@ test('journal flow: write, tag, update, edit, tags, delete with undo', async ({
   await page.getByLabel('Date').fill('2099-01-01')
   await page.getByRole('button', { name: 'Save moment' }).click()
   await expect(
-    page.getByText("Moments can't be dated in the future."),
+    page.getByText(/Moments can.t be dated in the future\./),
   ).toBeVisible()
 
   // --- draft autosave survives a reload; "Start over" clears it
@@ -212,14 +212,73 @@ test('journal flow: write, tag, update, edit, tags, delete with undo', async ({
     .getByRole('alertdialog')
     .getByRole('button', { name: 'Delete moment' })
     .click()
+  await expect(page.getByText('Moment deleted')).toBeVisible()
   await expect(page.getByText('Moment deleted')).toBeHidden({ timeout: 15_000 })
   await page.reload()
   await page.waitForSelector('html[data-hydrated]')
   await expect(
-    page.getByText(/You haven.t written a moment yet\./),
+    page.getByRole('heading', { name: 'No moments yet' }),
   ).toBeVisible()
 
   expect(problems, problems.join('\n')).toEqual([])
+})
+
+async function writeMoment(page: Page, title: string) {
+  await visit(page, '/moments/new')
+  await page.getByLabel('Title').fill(title)
+  await page.getByLabel('What happened').fill('Something to delete.')
+  await page.getByRole('button', { name: 'Save moment' }).click()
+  await expect(page.getByRole('heading', { name: title })).toBeVisible()
+}
+
+async function confirmDelete(page: Page) {
+  await page
+    .locator('#main')
+    .getByRole('button', { name: 'Delete moment' })
+    .click()
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Delete moment' })
+    .click()
+  await expect(page).toHaveURL(/\/moments$/)
+  await expect(page.getByText('Moment deleted')).toBeVisible()
+}
+
+// The delete is sent after the undo window. These are the ways people leave
+// that window early, which used to drop the delete without a word.
+test('a confirmed delete sticks even if the page is left or the toast is held', async ({
+  page,
+}) => {
+  await signUp(page)
+  await writeMoment(page, 'Reload right away')
+  await writeMoment(page, 'Hover the toast')
+  await writeMoment(page, 'Keep me')
+
+  // --- reload inside the undo window: the delete is sent as the page goes
+  await visit(page, '/moments')
+  await page.getByRole('link', { name: 'Reload right away' }).click()
+  await confirmDelete(page)
+  await expect(async () => {
+    await page.reload()
+    await page.waitForSelector('html[data-hydrated]')
+    await expect(
+      page.getByRole('link', { name: 'Reload right away' }),
+    ).toHaveCount(0, { timeout: 500 })
+  }).toPass({ timeout: 10_000 })
+
+  // --- pointer resting on the toast (Sonner pauses its own timer for that)
+  await page.getByRole('link', { name: 'Hover the toast' }).click()
+  await confirmDelete(page)
+  await page.getByText('Moment deleted').hover()
+  await expect(page.getByText('Moment deleted')).toBeHidden({ timeout: 15_000 })
+  await page.reload()
+  await page.waitForSelector('html[data-hydrated]')
+  await expect(page.getByRole('link', { name: 'Hover the toast' })).toHaveCount(
+    0,
+  )
+
+  // --- only the deleted moments went
+  await expect(page.getByRole('link', { name: 'Keep me' })).toBeVisible()
 })
 
 test("another account cannot open someone else's moment", async ({
