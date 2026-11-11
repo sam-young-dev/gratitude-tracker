@@ -53,8 +53,7 @@ export function HeatMapDays({
   const headingRef = useRef<HTMLHeadingElement>(null)
   const focusPanel = useRef(false)
 
-  // After a chart click the new panel is the next thing to read; list buttons
-  // sit right beside it, so focus stays where it is.
+  // After a chart click the new panel is the next thing to read.
   useEffect(() => {
     if (day && focusPanel.current) headingRef.current?.focus()
     focusPanel.current = false
@@ -93,8 +92,8 @@ export function HeatMapDays({
           <HeatMapView
             {...heat}
             selectedDay={day}
-            onSelectDay={(next, source) => {
-              focusPanel.current = source === 'chart'
+            onSelectDay={(next) => {
+              focusPanel.current = true
               onDayChange(next === day ? undefined : next)
             }}
           />
