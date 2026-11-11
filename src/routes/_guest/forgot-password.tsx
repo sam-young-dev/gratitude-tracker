@@ -72,7 +72,12 @@ function ForgotPassword() {
       description="Enter your email and we’ll send you a link to choose a new one."
       footer={back}
     >
-      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
+      <form
+        method="post"
+        onSubmit={onSubmit}
+        noValidate
+        className="flex flex-col gap-5"
+      >
         <FormField
           label="Email"
           name="email"

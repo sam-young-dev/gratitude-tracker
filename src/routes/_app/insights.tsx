@@ -165,19 +165,10 @@ function Insights() {
           weeks. Each square is a day; darker means more moments.
         </p>
         <HeatMapDays
-          mapWrapper={(map) => (
-            <div
-              className="overflow-x-auto"
-              tabIndex={0}
-              role="region"
-              aria-label="Heat map, scrollable"
-            >
-              <div className="min-w-[800px]">{map}</div>
-            </div>
-          )}
           counts={counts}
           end={end}
           weeks={53}
+          compact
           ariaLabel="Heat map of moments per day over the past year"
           day={day}
           loadedDay={loadedDay}

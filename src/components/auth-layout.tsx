@@ -10,7 +10,7 @@ export function AuthLayout({
   footer?: React.ReactNode
 }) {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-8 px-4 py-12">
+    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-8 pt-[calc(3rem+env(safe-area-inset-top))] pr-[max(1rem,env(safe-area-inset-right))] pb-[calc(3rem+env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))]">
       <p className="text-center font-serif text-xl font-semibold tracking-tight">
         Gratitude Tracker
       </p>

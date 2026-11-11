@@ -17,6 +17,7 @@ import { authClient } from '@/lib/auth-client'
 import { forgetSession } from '@/lib/auth.functions'
 import { exportFilename, toJson, toMarkdown } from '@/lib/export'
 import { exportEntriesFn } from '@/lib/journal.functions'
+import { setThemeColorOverride } from '@/lib/theme-color'
 
 export const Route = createFileRoute('/_app/settings')({
   head: () => ({ meta: [{ title: 'Settings · Gratitude Tracker' }] }),
@@ -50,6 +51,7 @@ function applyTheme(theme: Theme) {
       : theme === 'dark'
   document.documentElement.classList.toggle('dark', dark)
   document.documentElement.dataset.themePref = theme
+  setThemeColorOverride(theme === 'system' ? null : theme)
 }
 
 function download(filename: string, text: string, type: string) {

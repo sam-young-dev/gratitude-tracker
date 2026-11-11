@@ -1,6 +1,7 @@
 import {
   Link,
   createRouter as createTanStackRouter,
+  useRouter,
 } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { routeTree } from './routeTree.gen'
@@ -24,7 +25,8 @@ function NotFound() {
   )
 }
 
-function ErrorFallback({ reset }: { reset: () => void }) {
+function ErrorFallback() {
+  const router = useRouter()
   return (
     <div className="flex flex-col items-start gap-4 p-6">
       <h1 className="font-serif text-3xl font-semibold tracking-tight">
@@ -34,7 +36,14 @@ function ErrorFallback({ reset }: { reset: () => void }) {
         That didn&rsquo;t load. Your moments are safe. Try again, and if it
         keeps happening, come back in a little while.
       </p>
-      <Button type="button" variant="link" onClick={reset} className="px-0">
+      {/* invalidate() reruns the failed loader and resets the boundary; reset()
+          alone would re-render the same failed load. */}
+      <Button
+        type="button"
+        variant="link"
+        onClick={() => void router.invalidate()}
+        className="px-0"
+      >
         Try again
       </Button>
     </div>

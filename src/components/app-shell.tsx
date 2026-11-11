@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useRouterState } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import {
   BookOpen,
@@ -37,41 +37,32 @@ const COLLAPSED_KEY = 'sidebar-collapsed'
 function useSidebarCollapsed() {
   const [collapsed, setCollapsed] = useState(false)
 
-  // Read after mount so the server and first client render agree.
+  // The layout is styled from <html data-sidebar-collapsed>, which the pre-paint
+  // script in __root.tsx sets, so it is right on first paint. This state only
+  // keeps the toggle's label, aria-expanded and tooltips in sync.
   useEffect(() => {
-    try {
-      setCollapsed(localStorage.getItem(COLLAPSED_KEY) === '1')
-    } catch {
-      // storage unavailable; default to expanded
-    }
+    setCollapsed(document.documentElement.hasAttribute('data-sidebar-collapsed'))
   }, [])
 
   const toggle = () => {
-    setCollapsed((prev) => {
-      const next = !prev
-      try {
-        localStorage.setItem(COLLAPSED_KEY, next ? '1' : '0')
-      } catch {
-        // ignore
-      }
-      return next
-    })
+    const next = !collapsed
+    document.documentElement.toggleAttribute('data-sidebar-collapsed', next)
+    setCollapsed(next)
+    try {
+      localStorage.setItem(COLLAPSED_KEY, next ? '1' : '0')
+    } catch {
+      // ignore
+    }
   }
 
   return [collapsed, toggle] as const
 }
 
 const linkBase =
-  'flex items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground active:bg-muted'
+  'flex items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors duration-150 select-none [-webkit-touch-callout:none] hover:bg-muted hover:text-foreground active:bg-muted'
 const linkActive = 'bg-muted text-foreground'
 
-function RailLink({
-  item,
-  collapsed,
-}: {
-  item: NavItem
-  collapsed: boolean
-}) {
+function RailLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
   const Icon = item.icon
   return (
     <Link
@@ -82,12 +73,7 @@ function RailLink({
       activeProps={{ className: linkActive, 'aria-current': 'page' }}
     >
       <Icon className="size-5 shrink-0" aria-hidden="true" />
-      <span
-        className={cn(
-          'transition-opacity duration-150 motion-reduce:transition-none',
-          collapsed && 'opacity-0',
-        )}
-      >
+      <span className="transition-opacity duration-150 motion-reduce:transition-none sidebar-collapsed:opacity-0">
         {item.label}
       </span>
     </Link>
@@ -100,7 +86,7 @@ function TabLink({ item }: { item: NavItem }) {
     <Link
       to={item.to}
       activeOptions={{ exact: item.to === '/' }}
-      className="flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-xs font-medium text-muted-foreground transition-colors duration-150 hover:text-foreground active:bg-muted"
+      className="flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-xs font-medium text-muted-foreground transition-colors duration-150 select-none [-webkit-touch-callout:none] hover:text-foreground active:bg-muted"
       activeProps={{
         className: 'text-primary hover:text-primary',
         'aria-current': 'page',
@@ -114,14 +100,19 @@ function TabLink({ item }: { item: NavItem }) {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [collapsed, toggleCollapsed] = useSidebarCollapsed()
+  const loading = useRouterState({ select: (state) => state.isLoading })
 
   return (
-    <div
-      className={cn(
-        'min-h-dvh md:grid md:transition-[grid-template-columns] md:duration-200 md:ease-out motion-reduce:transition-none',
-        collapsed ? 'md:grid-cols-[4.5rem_1fr]' : 'md:grid-cols-[15rem_1fr]',
-      )}
-    >
+    <div className="min-h-dvh md:grid md:grid-cols-[15rem_1fr] md:transition-[grid-template-columns] md:duration-200 md:ease-out motion-reduce:transition-none md:sidebar-collapsed:grid-cols-[4.5rem_1fr]">
+      {/* A slow page load gets a bar; a fast one (most, thanks to preloading)
+          finishes inside the delay and shows nothing. */}
+      <div
+        aria-hidden="true"
+        className={cn(
+          'pointer-events-none fixed inset-x-0 top-0 z-50 h-0.5 bg-primary transition-opacity duration-150',
+          loading ? 'opacity-100 delay-300 motion-safe:animate-pulse' : 'opacity-0',
+        )}
+      />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-card focus:px-4 focus:py-2 focus:shadow-popover"
@@ -129,13 +120,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Skip to content
       </a>
 
-      <aside className="hidden overflow-hidden border-r md:sticky md:top-0 md:flex md:h-dvh md:flex-col md:gap-8 md:px-4 md:py-6">
+      <aside className="hidden overflow-hidden border-r md:sticky md:top-0 md:flex md:h-dvh md:flex-col md:gap-8 md:pt-[calc(1.5rem+env(safe-area-inset-top))] md:pr-4 md:pb-[calc(1.5rem+env(safe-area-inset-bottom))] md:pl-[max(1rem,env(safe-area-inset-left))]">
         <div className="flex min-h-11 items-center justify-between">
           <p
-            className={cn(
-              'px-3 font-serif text-xl font-semibold tracking-tight whitespace-nowrap transition-opacity duration-150 motion-reduce:transition-none',
-              collapsed && 'pointer-events-none opacity-0',
-            )}
+            className="px-3 font-serif text-xl font-semibold tracking-tight whitespace-nowrap transition-opacity duration-150 motion-reduce:transition-none sidebar-collapsed:pointer-events-none sidebar-collapsed:opacity-0"
             aria-hidden={collapsed}
           >
             Gratitude Tracker
@@ -161,17 +149,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               'min-h-11 cursor-pointer overflow-hidden whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
             )}
           >
-            {collapsed ? (
-              <PanelLeftOpen className="size-5 shrink-0" aria-hidden="true" />
-            ) : (
-              <PanelLeftClose className="size-5 shrink-0" aria-hidden="true" />
-            )}
-            <span
-              className={cn(
-                'transition-opacity duration-150 motion-reduce:transition-none',
-                collapsed && 'opacity-0',
-              )}
-            >
+            <PanelLeftOpen
+              className="hidden size-5 shrink-0 sidebar-collapsed:block"
+              aria-hidden="true"
+            />
+            <PanelLeftClose
+              className="size-5 shrink-0 sidebar-collapsed:hidden"
+              aria-hidden="true"
+            />
+            <span className="transition-opacity duration-150 motion-reduce:transition-none sidebar-collapsed:opacity-0">
               Collapse
             </span>
           </button>
@@ -180,14 +166,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <main
         id="main"
-        className="mx-auto w-full max-w-4xl px-4 pt-8 pb-28 md:px-10 md:pt-12 md:pb-16"
+        className="mx-auto w-full max-w-4xl pt-[calc(2rem+env(safe-area-inset-top))] pr-[max(1rem,env(safe-area-inset-right))] pb-28 pl-[max(1rem,env(safe-area-inset-left))] md:pt-[calc(3rem+env(safe-area-inset-top))] md:pr-[max(2.5rem,env(safe-area-inset-right))] md:pb-16 md:pl-10"
       >
         {children}
       </main>
 
       <nav
         aria-label="Main"
-        className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+        data-tab-bar
+        className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-background pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] md:hidden"
       >
         {mobileNav.map((item) => (
           <TabLink key={item.to} item={item} />

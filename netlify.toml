@@ -5,3 +5,13 @@
   command = "npm run dev"
   targetPort = 3000
   port = 8888
+# The service worker must never be served stale, or app updates get stuck.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"

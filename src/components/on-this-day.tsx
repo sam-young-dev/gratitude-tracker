@@ -5,25 +5,38 @@ import { onThisDayFn } from '@/lib/journal.functions'
 import { cn } from '@/lib/utils'
 import type { EntrySummary } from '@/server/journal'
 
-// Fetched in the browser because "today" is the person's local date, which the
-// server can't know.
-export function OnThisDay() {
-  const [rows, setRows] = useState<Array<EntrySummary> | null>(null)
+type Props = {
+  /**
+   * From the page loader on client navigations. Null after a server render,
+   * because "today" is the person's local date, which the server can't know;
+   * those rows are then fetched here.
+   */
+  preloaded: Array<EntrySummary> | null
+}
+
+export function OnThisDay({ preloaded }: Props) {
+  const [fetched, setFetched] = useState<Array<EntrySummary> | null>(null)
+  const needsFetch = preloaded === null
 
   useEffect(() => {
+    if (!needsFetch) return
     let cancelled = false
     onThisDayFn({ data: { today: todayLocal() } })
       .then((result) => {
-        if (!cancelled) setRows(result)
+        if (!cancelled) setFetched(result)
       })
       .catch(() => {
-        if (!cancelled) setRows([])
+        if (!cancelled) setFetched([])
       })
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [needsFetch])
 
+  // Already known to be empty: render nothing, so nothing has to collapse.
+  if (preloaded?.length === 0) return null
+
+  const rows = preloaded ?? fetched
   const empty = rows !== null && rows.length === 0
 
   // The slot is held while loading so the list below doesn't jump. When there is
@@ -40,7 +53,13 @@ export function OnThisDay() {
       <div className="min-h-0 overflow-hidden">
         {rows && rows.length > 0 ? (
           <section
-            className="flex flex-col gap-4 transition-opacity duration-200 ease-out-strong starting:opacity-0"
+            className={cn(
+              'flex flex-col gap-4',
+              // Fade only when the rows arrive after the page; preloaded rows
+              // appear with everything else.
+              !preloaded &&
+                'transition-opacity duration-200 ease-out-strong starting:opacity-0',
+            )}
             aria-labelledby="otd-heading"
           >
             <h2
