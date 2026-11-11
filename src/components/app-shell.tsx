@@ -86,7 +86,7 @@ function TabLink({ item }: { item: NavItem }) {
     <Link
       to={item.to}
       activeOptions={{ exact: item.to === '/' }}
-      className="flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-xs font-medium text-muted-foreground transition-colors duration-150 select-none [-webkit-touch-callout:none] hover:text-foreground active:bg-muted"
+      className="flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 text-[0.6875rem] leading-none font-medium text-muted-foreground transition-colors duration-150 select-none [-webkit-touch-callout:none] hover:text-foreground active:bg-muted"
       activeProps={{
         className: 'text-primary hover:text-primary',
         'aria-current': 'page',
@@ -166,7 +166,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <main
         id="main"
-        className="mx-auto w-full max-w-4xl pt-[calc(2rem+env(safe-area-inset-top))] pr-[max(1rem,env(safe-area-inset-right))] pb-28 pl-[max(1rem,env(safe-area-inset-left))] md:pt-[calc(3rem+env(safe-area-inset-top))] md:pr-[max(2.5rem,env(safe-area-inset-right))] md:pb-16 md:pl-10"
+        className="mx-auto w-full max-w-4xl pt-[calc(2rem+env(safe-area-inset-top))] pr-[max(1rem,env(safe-area-inset-right))] pb-24 pl-[max(1rem,env(safe-area-inset-left))] md:pt-[calc(3rem+env(safe-area-inset-top))] md:pr-[max(2.5rem,env(safe-area-inset-right))] md:pb-16 md:pl-10"
       >
         {children}
       </main>
@@ -174,7 +174,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <nav
         aria-label="Main"
         data-tab-bar
-        className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-background pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-background pr-[env(safe-area-inset-right)] pb-[max(0px,calc(env(safe-area-inset-bottom)-0.75rem))] pl-[env(safe-area-inset-left)] md:hidden"
       >
         {mobileNav.map((item) => (
           <TabLink key={item.to} item={item} />

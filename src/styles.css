@@ -41,6 +41,9 @@
   --heat-3: oklch(0.69 0.15 68);
   --heat-4: oklch(0.57 0.145 54);
 
+  /* Chart bars: own token per theme (heat steps invert in dark), ≥3:1 vs page and card. */
+  --chart-bar: oklch(0.63 0.15 62);
+
   --elev-card:
     0 0 0 1px oklch(0.25 0.02 60 / 0.04), 0 1px 2px oklch(0.25 0.02 60 / 0.05),
     0 4px 12px oklch(0.25 0.02 60 / 0.05);
@@ -74,6 +77,8 @@
   --heat-2: oklch(0.5 0.1 74);
   --heat-3: oklch(0.64 0.12 76);
   --heat-4: oklch(0.79 0.125 82);
+
+  --chart-bar: oklch(0.58 0.115 74);
 
   --elev-card: 0 0 0 1px oklch(0.32 0.012 60), 0 2px 8px oklch(0 0 0 / 0.25);
   --elev-popover:
@@ -141,7 +146,7 @@
   /* Phones: focus and scrollIntoView stop above the fixed tab bar. */
   @media (width < 48rem) {
     html {
-      scroll-padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+      scroll-padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
     }
   }
 

@@ -23,8 +23,7 @@ type Props = {
   ariaLabel: string
   /** The day whose moments are showing, as "YYYY-MM-DD". */
   selectedDay?: string
-  /** `source` says whether the chart or the list asked, so the caller can manage focus. */
-  onSelectDay?: (day: string, source: 'chart' | 'list') => void
+  onSelectDay?: (day: string) => void
 }
 
 export function HeatMap({
@@ -131,15 +130,6 @@ export function HeatMap({
     ? { aspectRatio: weeks / 8, initialWidth: weeks * MIN_CELL }
     : { height: 170, initialWidth: 800 }
 
-  // Tooltips are hover-only, so the same numbers are available as text.
-  const days = useMemo(
-    () =>
-      counts
-        .filter((row) => row.count > 0)
-        .sort((a, b) => (a.date < b.date ? 1 : -1)),
-    [counts],
-  )
-
   return (
     <div>
       {/* Opens on the most recent weeks; older ones are a swipe to the left.
@@ -169,7 +159,7 @@ export function HeatMap({
             {...sizing}
             ariaLabel={ariaLabel}
             onSelect={(point) => {
-              if (point) onSelectDay?.(point.datum.date, 'chart')
+              if (point) onSelectDay?.(point.datum.date)
             }}
           />
         </div>
@@ -188,47 +178,6 @@ export function HeatMap({
         ))}
         <span>4+</span>
       </div>
-      <details className="text-sm">
-        <summary className="min-h-11 cursor-pointer py-3 text-muted-foreground">
-          Show as a list
-        </summary>
-        {days.length === 0 ? (
-          <p className="text-muted-foreground">No moments in this period.</p>
-        ) : (
-          <table className="w-full max-w-sm text-left tabular-nums">
-            <thead>
-              <tr>
-                <th className="py-1 font-medium">Day</th>
-                <th className="py-1 font-medium">Moments</th>
-              </tr>
-            </thead>
-            <tbody>
-              {days.map((row) => (
-                <tr key={row.date}>
-                  <td>
-                    <button
-                      type="button"
-                      aria-pressed={row.date === selectedDay}
-                      onClick={() => onSelectDay?.(row.date, 'list')}
-                      className="group min-h-11 text-left underline-offset-4 hover:underline"
-                    >
-                      {/* Reserved width, so selecting a day never reflows the text. */}
-                      <span
-                        aria-hidden="true"
-                        className="inline-block w-4 opacity-0 group-aria-pressed:opacity-100"
-                      >
-                        ✓
-                      </span>
-                      {formatEntryDate(row.date)}
-                    </button>
-                  </td>
-                  <td className="py-1">{row.count}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </details>
     </div>
   )
 }

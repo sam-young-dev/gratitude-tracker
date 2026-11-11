@@ -60,7 +60,7 @@ function Insights() {
             x: 'label',
             y: 'count',
             radius: 3,
-            fill: 'var(--primary)',
+            fill: 'var(--chart-bar)',
           }),
         ],
         scales: {
@@ -96,7 +96,7 @@ function Insights() {
             y: 'name',
             x: 'count',
             radius: 3,
-            fill: 'var(--primary)',
+            fill: 'var(--chart-bar)',
           }),
         ],
         scales: {
