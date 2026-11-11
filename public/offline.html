@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <title>Offline · Gratitude Tracker</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        --bg: #f3ead8;
+        --fg: #2f2a24;
+        --muted: #6f655a;
+        --accent: #b8791f;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #26221e;
+          --fg: #f1e9dc;
+          --muted: #b3a898;
+        }
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+        box-sizing: border-box;
+        background: var(--bg);
+        color: var(--fg);
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+        text-align: center;
+      }
+      .dot {
+        width: 2.5rem;
+        height: 2.5rem;
+        margin: 0 auto 1.25rem;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+      h1 {
+        margin: 0 0 0.5rem;
+        font-family: Georgia, 'Times New Roman', serif;
+        font-weight: 500;
+        font-size: 1.5rem;
+      }
+      p {
+        margin: 0 0 1.5rem;
+        color: var(--muted);
+        max-width: 22rem;
+      }
+      button {
+        font: inherit;
+        padding: 0.625rem 1.25rem;
+        border: 0;
+        border-radius: 999px;
+        background: var(--fg);
+        color: var(--bg);
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="dot" aria-hidden="true"></div>
+      <h1>You're offline</h1>
+      <p>Your moments are safe. Reconnect to keep writing them down.</p>
+      <button type="button" onclick="location.reload()">Try again</button>
+    </main>
+  </body>
+</html>

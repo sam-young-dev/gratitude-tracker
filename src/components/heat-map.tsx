@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useLayoutEffect, useMemo, useRef } from 'react'
 import { cell, defineChart } from '@tanstack/charts'
 import { Chart } from '@tanstack/charts/react'
 import { scaleBand } from '@tanstack/charts/scales/band'
@@ -10,12 +10,14 @@ import type { HeatCell } from '@/lib/heat'
 const LEVELS = [0, 1, 2, 3, 4] as const
 const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6]
 const WEEKDAY_LABELS = ['', 'Mon', '', 'Wed', '', 'Fri', '']
+/** Narrowest a compact week column gets, so each day stays a comfortable tap target (WCAG 2.5.8 asks for 24px). */
+const MIN_CELL = 28
 
 type Props = {
   counts: ReadonlyArray<{ date: string; count: number }>
   end: string
   weeks: number
-  /** Compact: shorter, no weekday labels. */
+  /** Compact: no weekday labels; fills its container with square cells, scrolling sideways when too narrow to tap comfortably. */
   compact?: boolean
   ariaLabel: string
   /** The day whose moments are showing, as "YYYY-MM-DD". */
@@ -118,8 +120,21 @@ export function HeatMap({
     [levelMarks, cells, weekKeys, compact, selectedDay],
   )
 
-  // Seven rows plus the month labels; cells stay roughly square.
-  const height = compact ? 150 : 170
+  // Seven rows plus the month labels; cells stay roughly square. Compact maps
+  // fill their container and their height follows the width (the labels take
+  // about one more row). Below MIN_CELL per week they stop shrinking and scroll
+  // sideways instead. Full maps scroll sideways at a fixed height.
+  const sizing = compact
+    ? { aspectRatio: weeks / 8, initialWidth: weeks * MIN_CELL }
+    : { height: 170, initialWidth: 800 }
+
+  // Open on the most recent weeks; older ones are a swipe to the left. Runs
+  // before paint so the map never flashes at its oldest end.
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    const el = scrollRef.current
+    if (el) el.scrollLeft = el.scrollWidth
+  }, [weeks])
 
   // Tooltips are hover-only, so the same numbers are available as text.
   const days = useMemo(
@@ -132,15 +147,21 @@ export function HeatMap({
 
   return (
     <div>
-      <Chart
-        definition={definition}
-        height={height}
-        initialWidth={compact ? 300 : 800}
-        ariaLabel={ariaLabel}
-        onSelect={(point) => {
-          if (point) onSelectDay?.(point.datum.date, 'chart')
-        }}
-      />
+      <div
+        ref={compact ? scrollRef : undefined}
+        className={compact ? 'overflow-x-auto overscroll-x-contain' : undefined}
+      >
+        <div style={compact ? { minWidth: weeks * MIN_CELL } : undefined}>
+          <Chart
+            definition={definition}
+            {...sizing}
+            ariaLabel={ariaLabel}
+            onSelect={(point) => {
+              if (point) onSelectDay?.(point.datum.date, 'chart')
+            }}
+          />
+        </div>
+      </div>
       <div
         aria-hidden="true"
         className="flex items-center justify-end gap-1 py-1 text-xs text-muted-foreground"

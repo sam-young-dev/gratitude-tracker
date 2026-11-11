@@ -6,6 +6,7 @@ import appCss from '../styles.css?url'
 import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url'
 import newsreaderLatin from '@fontsource-variable/newsreader/files/newsreader-latin-opsz-normal.woff2?url'
 import { HydrationMarker } from '@/components/hydration-marker'
+import { ServiceWorkerRegistration } from '@/components/service-worker'
 import { Toaster } from '@/components/ui/sonner'
 
 // Runs before first paint so a dark-mode user never sees a light flash. It also
@@ -27,7 +28,8 @@ export const Route = createRootRoute({
       },
       {
         name: 'viewport',
-        content: 'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content',
+        content:
+          'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content',
       },
       {
         title: 'Gratitude Tracker',
@@ -50,9 +52,16 @@ export const Route = createRootRoute({
         content: '#26221e',
         media: '(prefers-color-scheme: dark)',
       },
+      // Installed-app (home screen) behavior, mainly for iOS Safari.
+      { name: 'mobile-web-app-capable', content: 'yes' },
+      { name: 'apple-mobile-web-app-capable', content: 'yes' },
+      { name: 'apple-mobile-web-app-title', content: 'Gratitude' },
+      { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
     ],
     links: [
       { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+      { rel: 'manifest', href: '/manifest.webmanifest' },
+      { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
       // The latin subsets cover the app's copy; preloading them avoids a late swap.
       {
         rel: 'preload',
@@ -87,9 +96,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         {children}
         <HydrationMarker />
+        <ServiceWorkerRegistration />
         <Toaster
           position="bottom-center"
-          mobileOffset={{ bottom: 'calc(4.5rem + env(safe-area-inset-bottom))' }}
+          mobileOffset={{
+            bottom: 'calc(4.5rem + env(safe-area-inset-bottom))',
+          }}
         />
         {import.meta.env.DEV ? (
           <TanStackDevtools

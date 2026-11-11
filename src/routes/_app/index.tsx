@@ -5,7 +5,13 @@ import { HeatMapDays } from '@/components/heat-map-days'
 import { OnThisDay } from '@/components/on-this-day'
 import { buttonVariants } from '@/components/ui/button'
 import { loadDayEntries, useSetDay, validateDaySearch } from '@/lib/day-search'
-import { getHeatFn, listEntriesFn, listTagsFn } from '@/lib/journal.functions'
+import { todayLocal } from '@/lib/dates'
+import {
+  getHeatFn,
+  listEntriesFn,
+  listTagsFn,
+  onThisDayFn,
+} from '@/lib/journal.functions'
 import { usePendingDeleteIds, wasRestored } from '@/lib/pending-deletes'
 import { cn } from '@/lib/utils'
 
@@ -13,19 +19,26 @@ export const Route = createFileRoute('/_app/')({
   head: () => ({ meta: [{ title: 'Home · Gratitude Tracker' }] }),
   validateSearch: validateDaySearch,
   loader: async ({ location }) => {
-    const [recent, tags, heat, loadedDay] = await Promise.all([
+    const [recent, heat, loadedDay, onThisDay] = await Promise.all([
       listEntriesFn({ data: { limit: 5 } }),
-      listTagsFn(),
-      getHeatFn({ data: { weeks: 14 } }),
+      getHeatFn({ data: { weeks: 26 } }),
       loadDayEntries(location),
+      // "Today" is the browser's date, so only a client navigation (or hover
+      // preload) can ask up front. The server render leaves it to OnThisDay.
+      typeof window === 'undefined'
+        ? null
+        : onThisDayFn({ data: { today: todayLocal() } }).catch(() => null),
     ])
-    return { ...recent, tags, heat, loadedDay }
+    // Tags only feed the first-run form, so returning visits skip the query.
+    const tags = recent.total === 0 ? await listTagsFn() : []
+    return { ...recent, tags, heat, loadedDay, onThisDay }
   },
   component: Home,
 })
 
 function Home() {
-  const { entries, total, tags, heat, loadedDay } = Route.useLoaderData()
+  const { entries, total, tags, heat, loadedDay, onThisDay } =
+    Route.useLoaderData()
   const { day } = Route.useSearch()
   const setDay = useSetDay()
   const { user } = Route.useRouteContext()
@@ -84,17 +97,14 @@ function Home() {
           id="heat-heading"
           className="text-sm font-medium text-muted-foreground"
         >
-          The last 14 weeks
+          The last 26 weeks
         </h2>
         <HeatMapDays
-          mapWrapper={(map) => (
-            <div className="w-full max-w-[300px]">{map}</div>
-          )}
           counts={heat.counts}
           end={heat.end}
           weeks={heat.weeks}
           compact
-          ariaLabel="Heat map of moments per day over the last 14 weeks"
+          ariaLabel="Heat map of moments per day over the last 26 weeks"
           day={day}
           loadedDay={loadedDay}
           onDayChange={setDay}
@@ -107,7 +117,7 @@ function Home() {
         </Link>
       </section>
 
-      <OnThisDay />
+      <OnThisDay preloaded={onThisDay} />
 
       <section className="flex flex-col gap-4">
         <h2 className="text-sm font-medium text-muted-foreground">
