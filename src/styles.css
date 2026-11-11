@@ -130,6 +130,16 @@
     font-synthesis: none;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+    /* An app shell, not a document: no pull-to-refresh or page rubber band
+       behind the fixed tab bar. */
+    overscroll-behavior: none;
+  }
+
+  /* Phones: focus and scrollIntoView stop above the fixed tab bar. */
+  @media (width < 48rem) {
+    html {
+      scroll-padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+    }
   }
 
   button,
@@ -139,6 +149,14 @@
   textarea,
   [role='button'] {
     touch-action: manipulation;
+  }
+
+  /* Controls, not content: a long press shouldn't select their labels. */
+  button,
+  [role='button'],
+  summary {
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   body {
@@ -171,6 +189,27 @@
   border-color: transparent;
 }
 
+/* While the software keyboard is up the tab bar steps aside: Android (with
+   interactive-widget=resizes-content) would otherwise ride it on top of the
+   keyboard, eating a third of what's left of the screen. */
+@media (pointer: coarse) {
+  body:has(
+      :is(
+        input:not(
+          [type='checkbox'],
+          [type='radio'],
+          [type='button'],
+          [type='submit'],
+          [type='date']
+        ),
+        textarea
+      ):focus
+    )
+    [data-tab-bar] {
+    display: none;
+  }
+}
+
 /* Entry text: serif, capped measure, paragraph spacing tied to line-height. */
 .prose-entry {
   @apply font-serif text-lg;
@@ -190,7 +229,8 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     /* Drop movement but keep colour and opacity fades. */
-    transition-property: color, background-color, border-color, opacity !important;
+    transition-property:
+      color, background-color, border-color, opacity !important;
     scroll-behavior: auto !important;
   }
 }

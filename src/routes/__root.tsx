@@ -8,15 +8,21 @@ import newsreaderLatin from '@fontsource-variable/newsreader/files/newsreader-la
 import { HydrationMarker } from '@/components/hydration-marker'
 import { ServiceWorkerRegistration } from '@/components/service-worker'
 import { Toaster } from '@/components/ui/sonner'
+import { THEME_COLORS, themeColorOverrideSource } from '@/lib/theme-color'
 
 // Runs before first paint so a dark-mode user never sees a light flash. It also
-// records the saved choice on <html> so the Settings picker renders correctly.
+// records the saved choice on <html> so the Settings picker renders correctly,
+// and points the status bar at a forced theme instead of the OS one.
+// It also defines window.__setThemeColorOverride, which Settings reuses.
 const themeScript = `(() => {
+  window.__setThemeColorOverride = ${themeColorOverrideSource}
   try {
     const stored = localStorage.getItem('theme')
-    const dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
+    const forced = stored === 'light' || stored === 'dark' ? stored : null
+    const dark = forced ? forced === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
     document.documentElement.classList.toggle('dark', dark)
-    document.documentElement.dataset.themePref = stored === 'light' || stored === 'dark' ? stored : 'system'
+    document.documentElement.dataset.themePref = forced || 'system'
+    window.__setThemeColorOverride(forced)
   } catch {}
 })()`
 
@@ -44,12 +50,12 @@ export const Route = createRootRoute({
       },
       {
         name: 'theme-color',
-        content: '#f3ead8',
+        content: THEME_COLORS.light,
         media: '(prefers-color-scheme: light)',
       },
       {
         name: 'theme-color',
-        content: '#26221e',
+        content: THEME_COLORS.dark,
         media: '(prefers-color-scheme: dark)',
       },
       // Installed-app (home screen) behavior, mainly for iOS Safari.

@@ -62,16 +62,10 @@ function useSidebarCollapsed() {
 }
 
 const linkBase =
-  'flex items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground active:bg-muted'
+  'flex items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors duration-150 select-none [-webkit-touch-callout:none] hover:bg-muted hover:text-foreground active:bg-muted'
 const linkActive = 'bg-muted text-foreground'
 
-function RailLink({
-  item,
-  collapsed,
-}: {
-  item: NavItem
-  collapsed: boolean
-}) {
+function RailLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
   const Icon = item.icon
   return (
     <Link
@@ -100,7 +94,7 @@ function TabLink({ item }: { item: NavItem }) {
     <Link
       to={item.to}
       activeOptions={{ exact: item.to === '/' }}
-      className="flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-xs font-medium text-muted-foreground transition-colors duration-150 hover:text-foreground active:bg-muted"
+      className="flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-xs font-medium text-muted-foreground transition-colors duration-150 select-none [-webkit-touch-callout:none] hover:text-foreground active:bg-muted"
       activeProps={{
         className: 'text-primary hover:text-primary',
         'aria-current': 'page',
@@ -129,7 +123,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Skip to content
       </a>
 
-      <aside className="hidden overflow-hidden border-r md:sticky md:top-0 md:flex md:h-dvh md:flex-col md:gap-8 md:px-4 md:py-6">
+      <aside className="hidden overflow-hidden border-r md:sticky md:top-0 md:flex md:h-dvh md:flex-col md:gap-8 md:pt-[calc(1.5rem+env(safe-area-inset-top))] md:pr-4 md:pb-[calc(1.5rem+env(safe-area-inset-bottom))] md:pl-[max(1rem,env(safe-area-inset-left))]">
         <div className="flex min-h-11 items-center justify-between">
           <p
             className={cn(
@@ -180,14 +174,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <main
         id="main"
-        className="mx-auto w-full max-w-4xl px-4 pt-8 pb-28 md:px-10 md:pt-12 md:pb-16"
+        className="mx-auto w-full max-w-4xl pt-[calc(2rem+env(safe-area-inset-top))] pr-[max(1rem,env(safe-area-inset-right))] pb-28 pl-[max(1rem,env(safe-area-inset-left))] md:pt-[calc(3rem+env(safe-area-inset-top))] md:pr-[max(2.5rem,env(safe-area-inset-right))] md:pb-16 md:pl-10"
       >
         {children}
       </main>
 
       <nav
         aria-label="Main"
-        className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
+        data-tab-bar
+        className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-background pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] md:hidden"
       >
         {mobileNav.map((item) => (
           <TabLink key={item.to} item={item} />
