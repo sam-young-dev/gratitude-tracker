@@ -7,20 +7,33 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     <meta name="color-scheme" content="light dark" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#faf5ec"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#1a1511"
+    />
     <title>Offline · Gratitude Tracker</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <style>
+      /* Hex copies of the --background, --foreground, --muted-foreground and
+         --primary tokens in src/styles.css; keep them in step. */
       :root {
-        --bg: #f3ead8;
-        --fg: #2f2a24;
-        --muted: #6f655a;
-        --accent: #b8791f;
+        --bg: #faf5ec;
+        --fg: #291f18;
+        --muted: #6c6156;
+        --accent: #874805;
       }
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg: #26221e;
-          --fg: #f1e9dc;
-          --muted: #b3a898;
+          --bg: #1a1511;
+          --fg: #ece7dd;
+          --muted: #a69d91;
+          --accent: #e0ae5d;
         }
       }
       html,

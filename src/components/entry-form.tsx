@@ -246,6 +246,7 @@ export function EntryForm({
   return (
     <form
       ref={formRef}
+      method="post"
       onSubmit={onSubmit}
       noValidate
       onKeyDown={(event) => {
@@ -438,14 +439,24 @@ export function EntryForm({
                 value={values.outcome}
                 onChange={(e) => set('outcome', e.target.value)}
                 aria-invalid={errors.outcome ? true : undefined}
+                aria-describedby={
+                  errors.outcome ? 'entry-outcome-error' : 'entry-outcome-hint'
+                }
                 rows={4}
                 className="min-h-28 font-serif text-lg leading-relaxed md:text-lg"
               />
-              <p className="text-sm text-muted-foreground">
+              <p
+                id="entry-outcome-hint"
+                className="text-sm text-muted-foreground"
+              >
                 Leave this blank now and come back when you know.
               </p>
               {errors.outcome ? (
-                <p role="alert" className="text-sm text-destructive">
+                <p
+                  id="entry-outcome-error"
+                  role="alert"
+                  className="text-sm text-destructive"
+                >
                   {errors.outcome}
                 </p>
               ) : null}

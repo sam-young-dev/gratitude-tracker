@@ -10,7 +10,8 @@ import { ServiceWorkerRegistration } from '@/components/service-worker'
 import { Toaster } from '@/components/ui/sonner'
 import { THEME_COLORS, themeColorOverrideSource } from '@/lib/theme-color'
 
-// Runs before first paint so a dark-mode user never sees a light flash. It also
+// Runs before first paint so a dark-mode user never sees a light flash, and a
+// collapsed sidebar never renders expanded first. It also
 // records the saved choice on <html> so the Settings picker renders correctly,
 // and points the status bar at a forced theme instead of the OS one.
 // It also defines window.__setThemeColorOverride, which Settings reuses.
@@ -23,6 +24,10 @@ const themeScript = `(() => {
     document.documentElement.classList.toggle('dark', dark)
     document.documentElement.dataset.themePref = forced || 'system'
     window.__setThemeColorOverride(forced)
+    document.documentElement.toggleAttribute(
+      'data-sidebar-collapsed',
+      localStorage.getItem('sidebar-collapsed') === '1',
+    )
   } catch {}
 })()`
 
@@ -69,20 +74,18 @@ export const Route = createRootRoute({
       { rel: 'manifest', href: '/manifest.webmanifest' },
       { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
       // The latin subsets cover the app's copy; preloading them avoids a late swap.
-      {
-        rel: 'preload',
-        href: interLatin,
-        as: 'font',
-        type: 'font/woff2',
-        crossOrigin: 'anonymous',
-      },
-      {
-        rel: 'preload',
-        href: newsreaderLatin,
-        as: 'font',
-        type: 'font/woff2',
-        crossOrigin: 'anonymous',
-      },
+      // Production only: the dev server serves fonts as no-cache and re-injects
+      // the CSS after hydration, so the browser refetches them and Chrome warns
+      // that the preloads went unused.
+      ...(import.meta.env.PROD
+        ? [interLatin, newsreaderLatin].map((href) => ({
+            rel: 'preload',
+            href,
+            as: 'font',
+            type: 'font/woff2',
+            crossOrigin: 'anonymous' as const,
+          }))
+        : []),
       {
         rel: 'stylesheet',
         href: appCss,
