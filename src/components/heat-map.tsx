@@ -6,11 +6,12 @@ import { tooltip } from '@tanstack/charts/tooltip'
 import { formatEntryDate } from '@/lib/dates'
 import { buildHeat, monthLabelForWeek } from '@/lib/heat'
 import type { HeatCell } from '@/lib/heat'
+import type { CSSProperties } from 'react'
 
 const LEVELS = [0, 1, 2, 3, 4] as const
 const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6]
 const WEEKDAY_LABELS = ['', 'Mon', '', 'Wed', '', 'Fri', '']
-/** Narrowest a compact week column gets, so each day stays a comfortable tap target (WCAG 2.5.8 asks for 24px). */
+/** Narrowest a compact week column gets under a finger, so each day stays a comfortable tap target (WCAG 2.5.8 asks for 24px). */
 const MIN_CELL = 28
 
 type Props = {
@@ -122,8 +123,10 @@ export function HeatMap({
 
   // Seven rows plus the month labels; cells stay roughly square. Compact maps
   // fill their container and their height follows the width (the labels take
-  // about one more row). Below MIN_CELL per week they stop shrinking and scroll
-  // sideways instead. Full maps scroll sideways at a fixed height.
+  // about one more row). On touch, below MIN_CELL per week they stop shrinking
+  // and scroll sideways instead; a mouse is precise enough for half that, so a
+  // full year still fits a desktop column. Full maps scroll sideways at a
+  // fixed height.
   const sizing = compact
     ? { aspectRatio: weeks / 8, initialWidth: weeks * MIN_CELL }
     : { height: 170, initialWidth: 800 }
@@ -151,7 +154,18 @@ export function HeatMap({
         ref={compact ? scrollRef : undefined}
         className={compact ? 'overflow-x-auto overscroll-x-contain' : undefined}
       >
-        <div style={compact ? { minWidth: weeks * MIN_CELL } : undefined}>
+        <div
+          style={
+            compact
+              ? ({ '--weeks': weeks } as CSSProperties)
+              : undefined
+          }
+          className={
+            compact
+              ? 'min-w-[calc(var(--weeks)*14px)] pointer-coarse:min-w-[calc(var(--weeks)*28px)]'
+              : undefined
+          }
+        >
           <Chart
             definition={definition}
             {...sizing}
