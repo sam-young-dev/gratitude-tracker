@@ -505,7 +505,7 @@ test('insights and home: heat map, monthly counts, tags, on this day', async ({
 
   // --- Home
   await visit(page, '/')
-  await expect(page.getByRole('img', { name: /last 14 weeks/ })).toBeVisible()
+  await expect(page.getByRole('img', { name: /last 26 weeks/ })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'On this day' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'A year ago' })).toBeVisible()
   await page.screenshot({ path: 'test-results/home.png', fullPage: true })

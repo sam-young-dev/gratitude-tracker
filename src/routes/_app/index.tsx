@@ -1,7 +1,7 @@
+import { Suspense, lazy } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { EntryForm } from '@/components/entry-form'
 import { EntryListItem } from '@/components/entry-list-item'
-import { HeatMapDays } from '@/components/heat-map-days'
+import { HeatMapDays, preloadHeatMap } from '@/components/heat-map-days'
 import { OnThisDay } from '@/components/on-this-day'
 import { buttonVariants } from '@/components/ui/button'
 import { loadDayEntries, useSetDay, validateDaySearch } from '@/lib/day-search'
@@ -11,9 +11,17 @@ import {
   listEntriesFn,
   listTagsFn,
   onThisDayFn,
+  onThisDayFromCookieFn,
 } from '@/lib/journal.functions'
 import { usePendingDeleteIds, wasRestored } from '@/lib/pending-deletes'
 import { cn } from '@/lib/utils'
+
+// Only a brand-new account sees the form here, so returning visits don't
+// download or evaluate it (or the validation library behind it).
+const loadEntryForm = () => import('@/components/entry-form')
+const EntryForm = lazy(() =>
+  loadEntryForm().then((m) => ({ default: m.EntryForm })),
+)
 
 export const Route = createFileRoute('/_app/')({
   head: () => ({ meta: [{ title: 'Home · Gratitude Tracker' }] }),
@@ -23,14 +31,20 @@ export const Route = createFileRoute('/_app/')({
       listEntriesFn({ data: { limit: 5 } }),
       getHeatFn({ data: { weeks: 26 } }),
       loadDayEntries(location),
-      // "Today" is the browser's date, so only a client navigation (or hover
-      // preload) can ask up front. The server render leaves it to OnThisDay.
-      typeof window === 'undefined'
-        ? null
-        : onThisDayFn({ data: { today: todayLocal() } }).catch(() => null),
+      // "Today" is the browser's date. A client navigation (or hover preload)
+      // asks directly; the server render uses the saved time zone cookie, and
+      // without one (a first visit) leaves it to OnThisDay.
+      (typeof window === 'undefined'
+        ? onThisDayFromCookieFn()
+        : onThisDayFn({ data: { today: todayLocal() } })
+      ).catch(() => null),
+      preloadHeatMap(),
     ])
     // Tags only feed the first-run form, so returning visits skip the query.
-    const tags = recent.total === 0 ? await listTagsFn() : []
+    const [tags] =
+      recent.total === 0
+        ? await Promise.all([listTagsFn(), loadEntryForm()])
+        : [[]]
     return { ...recent, tags, heat, loadedDay, onThisDay }
   },
   component: Home,
@@ -63,12 +77,14 @@ function Home() {
             turned out later.
           </p>
         </div>
-        <EntryForm
-          existingTags={tags.map((tag) => tag.name)}
-          draftKey={`gg:draft:${user.id}`}
-          submitLabel="Save moment"
-          celebrate
-        />
+        <Suspense>
+          <EntryForm
+            existingTags={tags.map((tag) => tag.name)}
+            draftKey={`gg:draft:${user.id}`}
+            submitLabel="Save moment"
+            celebrate
+          />
+        </Suspense>
       </div>
     )
   }

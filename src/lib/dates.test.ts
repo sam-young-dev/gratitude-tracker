@@ -5,6 +5,7 @@ import {
   latestAcceptedDate,
   parseDayParam,
   toIsoDate,
+  todayIn,
   todayLocal,
 } from '@/lib/dates'
 
@@ -75,5 +76,19 @@ describe('latestAcceptedDate', () => {
     expect(latestAcceptedDate(new Date('2026-02-28T12:00:00Z'))).toBe(
       '2026-03-01',
     )
+  })
+})
+
+describe('todayIn', () => {
+  // 03:30 UTC on Nov 12 is still the evening of Nov 11 in Nashville.
+  const now = new Date('2026-11-12T03:30:00Z')
+  it('gives the calendar day in the named time zone', () => {
+    expect(todayIn('America/Chicago', now)).toBe('2026-11-11')
+    expect(todayIn('UTC', now)).toBe('2026-11-12')
+    expect(todayIn('Asia/Tokyo', now)).toBe('2026-11-12')
+  })
+  it('returns undefined for a zone that does not exist', () => {
+    expect(todayIn('Not/A_Zone', now)).toBeUndefined()
+    expect(todayIn('', now)).toBeUndefined()
   })
 })

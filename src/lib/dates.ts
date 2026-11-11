@@ -12,6 +12,32 @@ export function todayLocal() {
   return toIsoDate(new Date())
 }
 
+/**
+ * Cookie holding the browser's IANA time zone, set by the root theme script.
+ * It lets the server work out the person's "today" (a date cookie would go
+ * stale overnight; the zone doesn't).
+ */
+export const TZ_COOKIE = 'tz'
+
+/** Today's date in an IANA time zone, or undefined if the zone isn't valid. */
+export function todayIn(timeZone: string, now = new Date()) {
+  try {
+    const fields = Object.fromEntries(
+      new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      })
+        .formatToParts(now)
+        .map((part) => [part.type, part.value]),
+    )
+    return `${fields.year}-${fields.month}-${fields.day}`
+  } catch {
+    return undefined
+  }
+}
+
 export function isRealDate(iso: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso)
   if (!match) return false
