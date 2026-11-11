@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { getRequestHeaders } from '@tanstack/react-start/server'
 import { z } from 'zod'
 import { auth } from '@/lib/auth'
-import { isRealDate } from '@/lib/dates'
+import { TZ_COOKIE, isRealDate, todayIn } from '@/lib/dates'
 import {
   entryInputSchema,
   idSchema,
@@ -143,3 +143,28 @@ export const onThisDayFn = createServerFn({ method: 'GET' })
     const [year, month, day] = data.today.split('-').map(Number)
     return journal.onThisDay(await requireUserId(), month, day, year)
   })
+
+/** The person's "today", from the time zone cookie the browser saved. */
+function todayFromCookie() {
+  const cookies = getRequestHeaders().get('cookie') ?? ''
+  const match = new RegExp(`(?:^|;\\s*)${TZ_COOKIE}=([^;]+)`).exec(cookies)
+  if (!match) return undefined
+  try {
+    return todayIn(decodeURIComponent(match[1]))
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * On-this-day rows for a server render. Null when the browser hasn't saved its
+ * time zone yet (a first visit); OnThisDay then fetches them itself.
+ */
+export const onThisDayFromCookieFn = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const today = todayFromCookie()
+    if (!today) return null
+    const [year, month, day] = today.split('-').map(Number)
+    return journal.onThisDay(await requireUserId(), month, day, year)
+  },
+)

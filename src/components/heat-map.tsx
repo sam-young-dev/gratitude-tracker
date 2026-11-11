@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { cell, defineChart } from '@tanstack/charts'
 import { Chart } from '@tanstack/charts/react'
 import { scaleBand } from '@tanstack/charts/scales/band'
@@ -131,14 +131,6 @@ export function HeatMap({
     ? { aspectRatio: weeks / 8, initialWidth: weeks * MIN_CELL }
     : { height: 170, initialWidth: 800 }
 
-  // Open on the most recent weeks; older ones are a swipe to the left. Runs
-  // before paint so the map never flashes at its oldest end.
-  const scrollRef = useRef<HTMLDivElement>(null)
-  useLayoutEffect(() => {
-    const el = scrollRef.current
-    if (el) el.scrollLeft = el.scrollWidth
-  }, [weeks])
-
   // Tooltips are hover-only, so the same numbers are available as text.
   const days = useMemo(
     () =>
@@ -150,9 +142,15 @@ export function HeatMap({
 
   return (
     <div>
+      {/* Opens on the most recent weeks; older ones are a swipe to the left.
+          A row-reverse scroller starts at its end, so the server HTML is
+          already scrolled there before any script runs. */}
       <div
-        ref={compact ? scrollRef : undefined}
-        className={compact ? 'overflow-x-auto overscroll-x-contain' : undefined}
+        className={
+          compact
+            ? 'flex flex-row-reverse overflow-x-auto overscroll-x-contain'
+            : undefined
+        }
       >
         <div
           style={
@@ -162,7 +160,7 @@ export function HeatMap({
           }
           className={
             compact
-              ? 'min-w-[calc(var(--weeks)*14px)] pointer-coarse:min-w-[calc(var(--weeks)*28px)]'
+              ? 'min-w-[calc(var(--weeks)*14px)] flex-1 pointer-coarse:min-w-[calc(var(--weeks)*28px)]'
               : undefined
           }
         >

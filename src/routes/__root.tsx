@@ -4,17 +4,19 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import appCss from '../styles.css?url'
 import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url'
-import newsreaderLatin from '@fontsource-variable/newsreader/files/newsreader-latin-opsz-normal.woff2?url'
+import newsreaderLatin from '@fontsource-variable/newsreader/files/newsreader-latin-wght-normal.woff2?url'
 import { HydrationMarker } from '@/components/hydration-marker'
 import { ServiceWorkerRegistration } from '@/components/service-worker'
 import { Toaster } from '@/components/ui/sonner'
+import { TZ_COOKIE } from '@/lib/dates'
 import { THEME_COLORS, themeColorOverrideSource } from '@/lib/theme-color'
 
 // Runs before first paint so a dark-mode user never sees a light flash, and a
 // collapsed sidebar never renders expanded first. It also
 // records the saved choice on <html> so the Settings picker renders correctly,
 // and points the status bar at a forced theme instead of the OS one.
-// It also defines window.__setThemeColorOverride, which Settings reuses.
+// It also defines window.__setThemeColorOverride, which Settings reuses, and
+// saves the time zone in a cookie so the server can render "On this day".
 const themeScript = `(() => {
   window.__setThemeColorOverride = ${themeColorOverrideSource}
   try {
@@ -28,6 +30,11 @@ const themeScript = `(() => {
       'data-sidebar-collapsed',
       localStorage.getItem('sidebar-collapsed') === '1',
     )
+  } catch {}
+  try {
+    document.cookie = '${TZ_COOKIE}=' +
+      encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone) +
+      '; path=/; max-age=31536000; samesite=lax'
   } catch {}
 })()`
 

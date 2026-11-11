@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { DayEntries } from '@/components/day-entries'
-import { HeatMap } from '@/components/heat-map'
 import { useDayEntries } from '@/lib/day-search'
+import type { HeatMap } from '@/components/heat-map'
 import type { ComponentProps, ReactNode } from 'react'
 import type { LoadedDay } from '@/lib/day-search'
 
@@ -19,6 +19,25 @@ type Props = Omit<
   mapWrapper?: (map: ReactNode) => ReactNode
 }
 
+// The chart library is the heaviest thing on the page. Loading it lazily keeps
+// it out of the route chunk, so a slow phone hydrates the rest of the page
+// first; the server-rendered map stays on screen until its own chunk arrives.
+let loaded: typeof HeatMap | undefined
+let loading: Promise<{ default: typeof HeatMap }> | undefined
+function loadHeatMap() {
+  loading ??= import('@/components/heat-map').then((m) => {
+    loaded = m.HeatMap
+    return { default: m.HeatMap }
+  })
+  return loading
+}
+const LazyHeatMap = lazy(loadHeatMap)
+// The server renders the map inline, never a fallback.
+if (typeof window === 'undefined') void loadHeatMap()
+
+/** Starts fetching the chart, so a client navigation renders it without a fallback. */
+export const preloadHeatMap = () => loadHeatMap().then(() => undefined)
+
 /** A heat map plus the panel of moments for the day picked on it. */
 export function HeatMapDays({
   day,
@@ -28,6 +47,9 @@ export function HeatMapDays({
   ...heat
 }: Props) {
   const [entries, retry] = useDayEntries(day, loadedDay)
+  // Pick once: switching from the lazy wrapper to the module later would
+  // remount the chart.
+  const [HeatMapView] = useState(() => loaded ?? LazyHeatMap)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const focusPanel = useRef(false)
 
@@ -67,14 +89,16 @@ export function HeatMapDays({
   return (
     <div className="flex flex-col gap-4">
       {mapWrapper(
-        <HeatMap
-          {...heat}
-          selectedDay={day}
-          onSelectDay={(next, source) => {
-            focusPanel.current = source === 'chart'
-            onDayChange(next === day ? undefined : next)
-          }}
-        />,
+        <Suspense fallback={<HeatMapPlaceholder {...heat} />}>
+          <HeatMapView
+            {...heat}
+            selectedDay={day}
+            onSelectDay={(next, source) => {
+              focusPanel.current = source === 'chart'
+              onDayChange(next === day ? undefined : next)
+            }}
+          />
+        </Suspense>,
       )}
       {day ? (
         <DayEntries
@@ -87,5 +111,23 @@ export function HeatMapDays({
         />
       ) : null}
     </div>
+  )
+}
+
+/** Holds the map's space if it ever has to wait for its chunk on the client. */
+function HeatMapPlaceholder({
+  weeks,
+  compact,
+}: Pick<ComponentProps<typeof HeatMap>, 'weeks' | 'compact'>) {
+  return (
+    <div
+      aria-hidden="true"
+      className="rounded-lg bg-muted/60"
+      style={
+        compact
+          ? { aspectRatio: `${weeks} / 8`, minHeight: 7 * 14 }
+          : { height: 170 }
+      }
+    />
   )
 }

@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import '@fontsource-variable/inter';
-@import '@fontsource-variable/newsreader/opsz.css';
+@import '@fontsource-variable/newsreader';
 
 @custom-variant dark (&:is(.dark *));
 /* Set on <html> before first paint (see __root.tsx), so a collapsed rail never

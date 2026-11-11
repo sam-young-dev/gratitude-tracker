@@ -7,9 +7,9 @@ import type { EntrySummary } from '@/server/journal'
 
 type Props = {
   /**
-   * From the page loader on client navigations. Null after a server render,
-   * because "today" is the person's local date, which the server can't know;
-   * those rows are then fetched here.
+   * From the page loader. Null when the server rendered without the time zone
+   * cookie (a first visit), because "today" is the person's local date, which
+   * the server can't otherwise know; those rows are then fetched here.
    */
   preloaded: Array<EntrySummary> | null
 }

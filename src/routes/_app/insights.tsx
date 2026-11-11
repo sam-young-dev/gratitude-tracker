@@ -5,7 +5,7 @@ import { Chart } from '@tanstack/charts/react'
 import { scaleBand } from '@tanstack/charts/scales/band'
 import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { tooltip } from '@tanstack/charts/tooltip'
-import { HeatMapDays } from '@/components/heat-map-days'
+import { HeatMapDays, preloadHeatMap } from '@/components/heat-map-days'
 import { buttonVariants } from '@/components/ui/button'
 import { loadDayEntries, useSetDay, validateDaySearch } from '@/lib/day-search'
 import { getInsightsFn } from '@/lib/journal.functions'
@@ -19,6 +19,7 @@ export const Route = createFileRoute('/_app/insights')({
     const [insights, loadedDay] = await Promise.all([
       getInsightsFn(),
       loadDayEntries(location),
+      preloadHeatMap(),
     ])
     return { ...insights, loadedDay }
   },
