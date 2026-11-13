@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#faf5ec"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#1a1511"
+    />
+    <title>Gratitude Tracker</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script>
+      // Honor a theme forced in Settings, same as the app's head script.
+      try {
+        const stored = localStorage.getItem('theme')
+        if (stored === 'light' || stored === 'dark')
+          document.documentElement.dataset.theme = stored
+      } catch {}
+    </script>
+    <style>
+      /* Hex copies of the --background, --foreground, --muted-foreground and
+         --primary tokens in src/styles.css; keep them in step. */
+      :root {
+        --bg: #faf5ec;
+        --fg: #291f18;
+        --muted: #6c6156;
+        --accent: #874805;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          --bg: #1a1511;
+          --fg: #ece7dd;
+          --muted: #a69d91;
+          --accent: #e0ae5d;
+        }
+      }
+      :root[data-theme='dark'] {
+        --bg: #1a1511;
+        --fg: #ece7dd;
+        --muted: #a69d91;
+        --accent: #e0ae5d;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+        box-sizing: border-box;
+        background: var(--bg);
+        color: var(--fg);
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+        text-align: center;
+      }
+      .dot {
+        width: 2.5rem;
+        height: 2.5rem;
+        margin: 0 auto 1.25rem;
+        border-radius: 50%;
+        background: var(--accent);
+        animation: breathe 1.6s ease-in-out infinite;
+      }
+      @keyframes breathe {
+        0%,
+        100% {
+          transform: scale(0.85);
+          opacity: 0.55;
+        }
+        50% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .dot {
+          animation: none;
+        }
+      }
+      h1 {
+        margin: 0 0 0.5rem;
+        font-family: Georgia, 'Times New Roman', serif;
+        font-weight: 500;
+        font-size: 1.5rem;
+      }
+      p {
+        margin: 0;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <main role="status" aria-live="polite">
+      <div class="dot" aria-hidden="true"></div>
+      <h1>Gratitude</h1>
+      <p>Gathering your moments…</p>
+    </main>
+    <script>
+      // The service worker served this page because the real one was slow, and
+      // is still fetching it. Wait for that, then navigate: the worker hands
+      // over the finished response instead of asking the server again.
+      const go = () => location.replace(location.href)
+      fetch('/__sw/wait?url=' + encodeURIComponent(location.href)).then(go, go)
+    </script>
+  </body>
+</html>
